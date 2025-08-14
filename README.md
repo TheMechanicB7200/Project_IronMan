@@ -12,6 +12,8 @@ At our core, we are inventors, dreamers, and doers. We are here to prove that �
 So join us. Support us. Help us turn fiction into fact.
 Because deep down, we all want to be a hero… don’t we?
 
+P.S. the  JARVIScore is not jarvis its a decoy
+
 
 and we need help with it so could you help donate
 
