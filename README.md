@@ -12,13 +12,11 @@ At our core, we are inventors, dreamers, and doers. We are here to prove that �
 So join us. Support us. Help us turn fiction into fact.
 Because deep down, we all want to be a hero… don’t we?
 
-P.S. the  JARVIScore is not jarvis its a decoy
-
+P.S. the  JARVIScore.py is not JARVIS its a decoy, the actual JARVIS is just named JARVIS.py
 
 and we need help with it so could you help donate
 
 Donation link:
-
 
 
 links for some files :
