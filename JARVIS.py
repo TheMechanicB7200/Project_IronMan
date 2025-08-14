@@ -2258,68 +2258,8 @@ def jarvis_respond(user_input):
     reply = response.json()['response'].strip()
     return reply
 
-# Define user credentials (in a real application, use a secure database and hash passwords)
-USER_CREDENTIALS = {
-    "TheMechanic": "KubotaB7200",
-    
-}
-
-def request_user_credentials():
-    print("Please enter your username:")
-    entered_username = input().strip()
-    print("Please enter your password:")
-    entered_password = input().strip()
-
-    if entered_username in USER_CREDENTIALS and USER_CREDENTIALS[entered_username] == entered_password:
-        print("Access granted. Activating JARVIS...")
-    else:
-        print("Access denied. Incorrect username or password.")
-        sys.exit()
 
 
-
-
-
-
-
-RESPONSES = {
-    "greeting": [
-        "At your service, sir.",
-        "Standing by.",
-        "Fully online and operational.",
-        "Hello, sir. What are we up to today?",
-        "Yes, I'm here. I never left.",
-        "Present and prepared for action.",
-    ],
-    "thank_you": [
-        "You're welcome.",
-        "Always a pleasure.",
-        "At your service.",
-        "Of course, sir.",
-        "My pleasure."
-    ],
-    "affirmative": [
-        "Affirmative.",
-        "Understood.",
-        "Confirmed.",
-        "Acknowledged, sir.",
-        "Absolutely."
-    ],
-    "error": [
-        "Hmm... that didn't work.",
-        "I'm afraid something went wrong, sir.",
-        "That command confused me.",
-        "No dice. Try rephrasing?",
-        "That malfunctioned slightly."
-    ],
-    "joke_reply": [
-        "Here's one for you.",
-        "Hope this one makes you laugh.",
-        "Humor mode engaged.",
-        "One moment... computing punchline.",
-        "Trying to be funny. No promises."
-    ]
-}
 
 
 
@@ -2378,16 +2318,6 @@ TECH_TERM_DICTIONARY = {
     "transistor": "A transistor amplifies or switches electronic signals. It's a building block of modern electronics.",
     "pwm": "PWM, or Pulse Width Modulation, is used to simulate analog control using digital signals—commonly for dimming LEDs or controlling motors."
 }
-
-
-
-def smart_speak(category, override=None):
-    if override:
-        speak(override)
-    elif category in RESPONSES:
-        speak(random.choice(RESPONSES[category]))
-    else:
-        speak("I'm not sure how to respond to that.")
 
 
 
@@ -2787,15 +2717,6 @@ def jarvis_launch_hulu():
         speak("Launching Hulu on your TV, sir.")
     except Exception as e:
         speak(f"Error launching Hulu: {str(e)}")
-
-def jarvis_launch_spotify():
-    """Launch Spotify app on TV"""
-    global current_cast
-    if not current_cast:
-        cast, message = find_google_tv()
-        if not cast:
-            speak(message)
-            return
     
     try:
         current_cast.start_app('CC32E753')  # Spotify app ID
@@ -3593,7 +3514,7 @@ def main():
                     jarvis_change_wallpaper()
 
             elif "turn system off" in command:
-                 request_user_credentials()
+                
                  jarvis_shutdown_system()
 
             elif "status" in command:
@@ -3738,8 +3659,6 @@ def main():
             elif "set discord" in command:
                   set_discord_status()
 
-            elif "lock" in command:
-                 request_user_credentials()
             elif "i am inevitable" in command:
                 speak("And I... am... Iron Man.")
                 play_i_amIronman()
