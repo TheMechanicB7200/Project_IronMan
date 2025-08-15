@@ -1,0 +1,3980 @@
+#Updated JARVIS
+#Update_Notes: added a calander function, and organized the code a little bit
+
+
+# J.A.R.V.I.S. - Just A Rather Very Intelligent System
+# This file contains the main functionality and commands for J.A.R.V.I.S.
+# JARVIS is a pesonal AI assistant by Pace Truitt, he is a personal AI assistant that helps with various tasks, projects, and ideas. he can help with coding, troubleshooting, and providing information on a wide range of topics. JARVIS is designed to be helpful, friendly, and efficient, always addressing the user as "Sir" or "Mr. Truitt".
+# JARVIS can also assist with personal projects, company ideas, and even provide entertainment through music and games. He is capable of voice interaction, web browsing, and can perform various tasks such as monitoring prices, checking weather conditions, and providing technical support for devices like ATVs. JARVIS is built to be a versatile and intelligent assistant that adapts to the user's needs.
+# JARVIS is designed to work for Pace Truitt, a teenager with a passion for technology and innovation. He is currently working on various projects, including a personal AI assistant, a company called Truitt Industries, and other creative endeavors. JARVIS is here to support Pace in his journey, providing assistance with coding, troubleshooting, and project management, while also ensuring a friendly and engaging user experience.
+# JARVIS is still under developement and is constantly being improved with new features and capabilities. He is designed to be a reliable and efficient assistant, helping Pace Truitt achieve his goals and make his projects a reality. JARVIS is built to be a personal companion, providing support and assistance in a wide range of tasks, from technical troubleshooting to creative brainstorming.
+# JARVIS in the future will be fully capable of smart home, automation and detecting a user through ultrasonic sensors and will greet the user. and will be able to control various devices and systems in the home. He will also be able to provide personalized recommendations and assistance based on the user's preferences and habits. JARVIS is designed to be a fully integrated personal assistant that enhances the user's daily life and productivity.
+import speedtest
+import random
+from playsound import playsound
+from scipy.io.wavfile import write
+import feedparser
+from faster_whisper import WhisperModel
+import sounddevice as sd
+import tempfile
+import re
+import wikipedia
+import pyttsx3
+import time
+from threading import Lock
+import platform
+import ipaddress
+from pypresence import Presence
+import sys
+import requests
+from simple_image_gen import generate_image
+from simple_image_gen import edit_image
+import webbrowser
+import urllib.parse
+from datetime import datetime, timedelta
+from OHIO_from_space_pic import auto_download_earth_image_over_ohio
+import pychromecast
+import ctypes
+import cv2
+import discord
+import asyncio
+import subprocess
+import pyautogui
+from describe_capabilities import describe_capabilities
+import psutil
+import shutil
+import os
+import traceback
+from win10toast import ToastNotifier
+from activate_decoy_mode import activate_decoy_and_shutdown
+from bs4 import BeautifulSoup
+import socket
+from random_functions import get_ip_address
+from random_functions import roll_dice
+from random_functions import flip_coin
+from random_functions import play_white_noise_until_4am
+import requests
+from datetime import datetime
+import threading
+import string
+from typing import Optional, Union, List
+import getpass
+import subprocess
+
+def password_protected_function():
+    # Define the correct password
+    correct_password = "KubotaB7200"
+
+    # Number of attempts allowed
+    num_attempts = 3
+
+    for i in range(num_attempts):
+        # Ask for user's password with hidden input
+        user_password = getpass.getpass("Enter your password: ")
+
+        if user_password == correct_password:
+            print("Password is correct. Welcome!")
+            return
+
+        else:
+            print(f"Incorrect password. {num_attempts - i - 1} attempts remaining.")
+
+    # If all attempts are exhausted and password is still incorrect
+    print("Too many failed attempts. Exiting the program.")
+    exit()
+
+
+# Weekly schedule: one dict per day
+weekly_schedule = {
+    "Monday": {
+        "08:00": "Check emails, and Coffee",
+        "09:30": "Program",
+        "12:00": "Lunch break",
+        "15:00": "Project work session",
+        "18:00": "Workout"
+    },
+    "Tuesday": {
+        "08:00": "Check emails, and Coffee",
+        "10:00": "Program",
+        "12:30": "Lunch break",
+        "14:00": "Development work",
+        "19:00": "Relax and watch a movie"
+    },
+    "Wednesday": {
+        "09:00": "Check emails, and Coffee",
+        "11:00": "Program",
+        "13:00": "Lunch",
+        "16:00": "Development work",
+        "20:00": "Relax"
+    },
+
+    "Thursday": {
+        "09:00": "Check emails, and Coffee",
+        "11:00": "Research session",
+        "13:00": "Lunch",
+        "16:00": "Team catch-up",
+        "20:00": "Relax"
+    },
+    "Friday": {
+        "09:00": "Check emails, and Coffee",
+        "11:00": "Research session",
+        "13:00": "Lunch",
+        "16:00": "Team catch-up",
+        "20:00": "Relax"
+    },
+    "Saturday": {
+        "09:00": "Coffee",
+        "11:00": "Research session",
+        "13:00": "Lunch",
+        "16:00": "Team catch-up",
+        "20:00": "Relax and watch a movie"
+    },
+    "Sunday": {
+        "09:00": "Coffee",
+        "11:00": "Cleaning",
+        "13:00": "Lunch",
+        "16:00": "Gaming",
+        "20:00": "Relax and Pizza"
+    }
+}
+
+
+def jarvis_check_schedule():
+    today = datetime.now().strftime("%A")
+    now_time = datetime.now().strftime("%H:%M")
+    
+    if today not in weekly_schedule:
+        print("No schedule for today.")
+        return None
+
+    print(f"📅 Schedule for {today}:")
+    next_task = None
+    for time, task in sorted(weekly_schedule[today].items()):
+        marker = ""
+        if time > now_time and next_task is None:
+            marker = "<-- Next task"
+            next_task = (time, task)
+        print(f"  {time}: {task} {marker}")
+
+    if next_task:
+        print(f"\nNext reminder: {next_task[1]} at {next_task[0]}")
+        return next_task
+    else:
+        print("\nNo upcoming tasks for today.")
+        return None
+
+
+# Set your OpenWeatherMap API key as an environment variable or replace 'your_api_key' with your actual key
+API_KEY = os.getenv("OPENWEATHERMAP_API_KEY", "41f720c140d06ffc3d27075d56710f95")  # Replace with your actual API key
+BASE_URL = "http://api.openweathermap.org/data/2.5/weather"
+
+def check_weather(city):
+    params = {
+        "q": city,
+        "appid": API_KEY,
+        "units": "metric"
+    }
+
+    response = requests.get(BASE_URL, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        weather_main = data["weather"][0]["main"]
+        weather_description = data["weather"][0]["description"]
+
+        # Always print the current weather for debugging
+        print(f"Current weather in {city}: {weather_main} - {weather_description}")
+
+        if weather_main.lower() in ["thunderstorm", "tornado"]:
+            print(f"🌪️ Warning! It's a {weather_main} in {city}. Stay safe!")
+    else:
+        print(f"Error: Unable to retrieve weather data for {city}")
+
+def run_ollama_command(
+    command_args: Union[str, List[str]],
+    description: str,
+    retries: int = 3,
+    delay: int = 3,
+    timeout: Optional[int] = None,
+    strip_output: bool = True
+) -> Optional[str]:
+    """Run an Ollama subprocess command with retries, timeout, and cleaner output."""
+    attempt = 1
+    while attempt <= retries:
+        print(f"\n▶️  [{description}] Attempt {attempt}/{retries}")
+        try:
+            start_time = time.time()
+            result = subprocess.run(
+                command_args,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                timeout=timeout
+            )
+            elapsed = round(time.time() - start_time, 2)
+
+            if result.returncode == 0:
+                output = result.stdout.strip() if strip_output else result.stdout
+                print(f"✅ Success in {elapsed}s")
+                return output
+            else:
+                print(f"⚠️ Command failed (exit {result.returncode}) in {elapsed}s")
+                print(f"STDERR: {result.stderr.strip()}")
+        
+        except FileNotFoundError:
+            print("❌ Ollama not found. Make sure it's installed and in your PATH.")
+            return None
+        except subprocess.TimeoutExpired:
+            print(f"⏳ Timeout expired after {timeout}s while {description}.")
+        except Exception as e:
+            print(f"❌ Unexpected error on attempt {attempt}: {e}")
+
+        if attempt < retries:
+            print(f"🔄 Retrying in {delay} seconds...")
+            time.sleep(delay)
+        attempt += 1
+
+    print(f"❌ All {retries} attempts failed for {description}.")
+    return None
+
+
+def code_helper():
+    """Interactive code generation, review, and update helper using Ollama."""
+    try:
+        request = input("\n📝 What would you like me to code? ").strip()
+        if not request:
+            print("❌ No request provided. Exiting.")
+            return
+
+        print("\n🤖 JARVIS: Generating your code...\n")
+        generated_code = run_ollama_command(
+            ["ollama", "run", "mistral-nemo:latest",
+             f"You are JARVIS, a helpful AI assistant. Write clean, well-commented Python code for: {request}"],
+            description="generating code",
+            retries=3,
+            delay=2,
+            timeout=80091.5
+        )
+        if not generated_code:
+            return
+
+        print("\n📜 --- Generated Code ---")
+        print(generated_code)
+        print("📜 ----------------------\n")
+
+        print("🔍 JARVIS: Reviewing your code", end="")
+        for _ in range(5):
+            sys.stdout.write(" ⏳")
+            sys.stdout.flush()
+            time.sleep(0.4)
+        print("\n")
+
+        review = run_ollama_command(
+            ["ollama", "run", "mistral-nemo:latest",
+             f"You are JARVIS, a helpful AI assistant. Review this Python code and suggest improvements:\n{generated_code}"],
+            description="reviewing code",
+            retries=2,
+            delay=2,
+            timeout=4900.9000323
+        )
+        if not review:
+            return
+
+        print("\n🧠 --- Review ---")
+        print(review)
+        print("🧠 --------------\n")
+
+        while True:
+            change_request = input("✏️ Would you like me to make changes? (yes/no) ").strip().lower()
+            if change_request not in {"yes", "no"}:
+                print("⚠️ Please answer 'yes' or 'no'.")
+                continue
+
+            if change_request == "no":
+                break
+
+            changes = input("🔧 Describe the changes you want: ").strip()
+            if not changes:
+                print("❌ No changes provided. Skipping update.")
+                break
+
+            updated_code = run_ollama_command(
+                ["ollama", "run", "mistral-nemo:latest",
+                 f"You are JARVIS, a helpful AI assistant. Update this Python code according to these changes: {changes}\nOriginal code:\n{generated_code}"],
+                description="updating code",
+                retries=2,
+                delay=2,
+                timeout=911.
+            )
+            if not updated_code:
+                return
+
+            print("\n📜 --- Updated Code ---")
+            print(updated_code)
+            print("📜 --------------------\n")
+
+            generated_code = updated_code
+
+        save_choice = input("💾 Save final code to file? (yes/no) ").strip().lower()
+        if save_choice == "yes":
+            filename = input("📂 Enter filename (e.g., script.py): ").strip()
+            if filename:
+                with open(filename, "w", encoding="utf-8") as f:
+                    f.write(generated_code)
+                print(f"✅ Code saved to {os.path.abspath(filename)}")
+            else:
+                print("❌ No filename provided. Skipping save.")
+
+    except KeyboardInterrupt:
+        print("\n⚠️ Process interrupted by user.")
+    except Exception as e:
+        print(f"❌ An unexpected error occurred: {e}")
+
+
+
+
+
+def normalize_text(text):
+    if not text:
+        return ""
+    # Lowercase and strip whitespace/punctuation
+    return text.lower().strip().strip(string.punctuation)
+
+def search_edge():
+    speak("What would you like to search for, sir?")
+    query = listen()
+    if not query:
+        speak("I didn't catch that. Please try again.")
+        return
+
+    # DuckDuckGo Instant Answer API
+    api_url = "https://api.duckduckgo.com/"
+    params = {
+        "q": query,
+        "format": "json",
+        "no_redirect": 1,
+        "no_html": 1,
+        "skip_disambig": 1
+    }
+    try:
+        response = requests.get(api_url, params=params)
+        data = response.json()
+    except Exception as e:
+        speak("There was a problem getting search results. Opening full search instead.")
+        open_full_search(query)
+        return
+
+    snippets = []
+    # Collect text + URL pairs from RelatedTopics
+    def extract_topics(topics):
+        for item in topics:
+            if "Text" in item and "FirstURL" in item:
+                snippets.append((item["Text"], item["FirstURL"]))
+            elif "Topics" in item:
+                extract_topics(item["Topics"])
+
+    if "RelatedTopics" in data:
+        extract_topics(data["RelatedTopics"])
+
+    if snippets:
+        speak(f"I found these results for {query}:")
+        # Read up to 5 results with some snippet trimming
+        for i, (title, url) in enumerate(snippets[:5], start=1):
+            # Limit snippet length to about 200 chars for easier listening
+            preview = (title[:197] + '...') if len(title) > 200 else title
+            speak(f"Result {i}: {preview}")
+    else:
+        speak("I couldn't find quick results, but I can open the full search.")
+
+    speak("Would you like me to open Microsoft Edge and show you the full search results?")
+    confirmation = listen()
+    confirmation_clean = normalize_text(confirmation)
+
+    accepted = {"yes", "yeah", "yep", "correct", "continue", "sure", "affirmative", "go ahead"}
+    if confirmation_clean in accepted:
+        open_full_search(query)
+    else:
+        speak("Okay, search canceled.")
+
+def open_full_search(query):
+    url = f"https://duckduckgo.com/?q={query.replace(' ', '+')}"
+    edge_path = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+    webbrowser.register('edge', None, webbrowser.BackgroundBrowser(edge_path))
+    webbrowser.get('edge').open(url)
+    speak(f"Opening Edge with search results for {query}")
+
+
+
+
+def get_current_location():
+    try:
+        res = requests.get("http://ip-api.com/json/")
+        data = res.json()
+        if data["status"] == "success":
+            city = data.get("city", "Unknown city")
+            region = data.get("regionName", "Unknown region")
+            country = data.get("country", "Unknown country")
+            return f"{city}, {region}, {country}"
+        else:
+            return "Unknown location"
+    except Exception as e:
+        return "Error retrieving location"
+
+
+
+def shutdown_pi(ip, user='pi'):
+    try:
+        result = subprocess.run(
+            ["ssh", f"{user}@{ip}", "sudo shutdown -h now"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if result.returncode == 0:
+            return "Shutdown command sent successfully."
+        else:
+            return f"Failed: {result.stderr.strip()}"
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+def jarvis_ask_for_directions():
+    speak("Where would you like directions to, sir?")
+    destination = listen().strip()
+
+    if not destination:
+        speak("I didn't catch that, sir.")
+        return
+
+    origin = "Current+Location"
+    destination_encoded = urllib.parse.quote(destination)
+
+    # Always open directions in the browser
+    directions_url = f"https://www.google.com/maps/dir/?api=1&origin={origin}&destination={destination_encoded}"
+    webbrowser.open(directions_url)
+
+    # Try scraping distance + time
+    try:
+        search_url = f"https://www.google.com/maps/dir/{origin}/{destination_encoded}/"
+        headers = {"User-Agent": "Mozilla/5.0"}
+
+        response = requests.get(search_url, headers=headers, timeout=10)
+        soup = BeautifulSoup(response.text, "html.parser")
+        text = soup.get_text(separator=' ')
+
+        time_match = re.search(r'\b\d+\s?(min|hour|hours|mins)\b', text)
+        distance_match = re.search(r'\b\d+(\.\d+)?\s?(km|mi|miles)\b', text)
+
+        duration = time_match.group(0) if time_match else None
+        distance = distance_match.group(0) if distance_match else None
+
+        if duration and distance:
+            speak(f"The trip to {destination} is approximately {distance} and should take about {duration}, sir.")
+        else:
+            raise ValueError("Time or distance not found.")
+
+    except Exception as e:
+        speak(f"Opening directions to {destination}, sir, but I couldn't read the time and distance.")
+        print(f"[Fallback Triggered] Error scraping map info: {e}")
+
+
+def get_weather_from_pi():
+    try:
+        response = requests.get("http://192.168.2.94:5005/forecast", timeout=10)  # Pi IP here
+        data = response.json()
+
+        if "error" in data:
+            speak(f"Weather error: {data['error']}")
+        else:
+            speak(data["current"])
+            print(data["current"])
+            print("\nToday's Forecast:")
+            print(data["forecast"])
+    except Exception as e:
+        speak(f"Could not fetch forecast from the Pi, sir.")
+        print(f"[ERROR] {e}")
+
+
+def jarvis_summarize_interactive():
+    """Asks the user for a file path, then summarizes the file using Ollama."""
+    import os
+    import requests
+    import PyPDF2
+
+    # Ask user to paste the file path
+    file_path = input("Paste the full path of the file you'd like to summarize:\n").strip()
+
+    if not os.path.exists(file_path):
+        speak("That file doesn't exist, sir.")
+        return
+
+    file_ext = os.path.splitext(file_path)[1].lower()
+    speak(f"Analyzing {os.path.basename(file_path)}, sir.")
+
+    try:
+        # Extract content based on file type
+        if file_ext == ".pdf":
+            with open(file_path, 'rb') as f:
+                reader = PyPDF2.PdfReader(f)
+                content = ""
+                for page in reader.pages:
+                    content += page.extract_text() or ""
+
+        elif file_ext in [".txt", ".md", ".log", ".py"]:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+
+        else:
+            speak("That file type is not yet supported for summarization.")
+            return
+
+        content = content.strip()
+        if len(content) < 50:
+            speak("The file is too short for meaningful summarization.")
+            return
+
+        # Send to Ollama (mistral)
+        speak("Sending content to AI for summarization.")
+        response = requests.post(
+            'http://localhost:11434/api/generate',
+            json={
+                "model": "mistral",
+                "prompt": f"Summarize this file content:\n\n{content}",
+                "stream": False
+            },
+            timeout=90
+        )
+
+        if response.status_code == 200:
+            summary = response.json().get("response", "").strip()
+            if summary:
+                speak("Summary ready, sir.")
+                print("\n" + "="*40)
+                print(f"SUMMARY OF {os.path.basename(file_path)}:\n\n{summary}")
+                print("="*40)
+            else:
+                speak("The AI returned an empty summary.")
+        else:
+            speak("AI service encountered an error.")
+            print(response.text)
+
+    except Exception as e:
+        speak(f"An error occurred: {e}")
+
+
+
+def play_beat_it():
+     playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\235820-74301f12-0c0f-4816-ad89-500978376ee2.mp3")
+       
+        
+def play_erika():
+    playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\Erika-German-Song-Sound-Effect.mp3")
+    speak("Playing music.")
+      
+
+def play_Imperial_March():
+      playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\227558-6ea81a03-cbc1-4d18-bdd6-9b031c6752ab.mp3")
+
+def play_music():
+    playsound(r"c:\Users\pjtru\OneDrive\Projects\Raspberry_Pi_JARVIS\ScreenRecording 2025-05-02 102436(audioextractor.org).wav")
+    speak("Playing music.")
+
+def play_theme():
+    playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\Untitled video - Made with Clipchamp (audio-extractor.net).mp3")
+    speak("Playing gravity falls theme.")
+
+def play_i_amIronman():
+    playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\iron-man.mp3")
+
+def cast_a_spell():
+      playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\Screen Recording 2025-05-04 132053 (audio-extractor.net).mp3")
+      speak("fun idea, sir. but magic doesnt really exist. shouldnt you be working on your suit?")
+
+def avengers():
+      playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\the_avengers_theme.mp3")
+
+
+def playinglukecombs():
+    playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\lukecombs music.wav")
+
+def welcome_back_sir():
+     playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\[J.A.R.V.I.S]welco...... sir..mp3")
+
+def jarvis_greets_new_user():
+     playsound (r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\[J.A.R.V.I.S]Hello...... ask..mp3")
+      
+
+def atyourservicesir():
+     playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\[Jarvis (MCU) J.A.R.V.I.S] __at...... sir..mp3")
+
+def i_dont_understand_that():
+     playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\[J.A.R.V.I.S]i am ......yet__.mp3")
+ 
+def i_am_jarvis():
+     playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\[Jarvis (MCU) J.A.R.V.I.S]I am ......ant ..mp3")
+
+def play_chime():
+     playsound(r'c:\Users\pjtru\OneDrive\Projects\JARVIS~1.1\IRON-M~1.MP3') 
+
+def play_abandoned_ship():
+     playsound(r"c:\Users\pjtru\OneDrive\Projects\might be useful\abandoned ship.mp3")
+
+
+
+
+AMAZON_URL = "https://www.amazon.com/dp/B0DQTXW7XB"
+HEADERS = {
+    "User-Agent": "Mozilla/5.0",
+    "Accept-Language": "en-US,en;q=0.9"
+}
+PRICE_LOG_FILE = "baler_price_history.txt"
+
+def get_current_price():
+    try:
+        response = requests.get(AMAZON_URL, headers=HEADERS, timeout=10)
+        soup = BeautifulSoup(response.text, "html.parser")
+        price_span = soup.find("span", class_="a-offscreen")
+        if price_span:
+            price_text = price_span.get_text().replace("$", "").replace(",", "")
+            return float(price_text)
+    except Exception as e:
+        print(f"[ERROR] Could not fetch price: {e}")
+    return None
+
+def record_price(price):
+    with open(PRICE_LOG_FILE, "a") as f:
+        f.write(f"{datetime.now().isoformat()} - ${price:.2f}\n")
+
+def get_best_price():
+    if not os.path.exists(PRICE_LOG_FILE):
+        return None
+    prices = []
+    with open(PRICE_LOG_FILE, "r") as f:
+        for line in f:
+            try:
+                price = float(line.strip().split("$")[1])
+                prices.append(price)
+            except:
+                continue
+    return min(prices) if prices else None
+
+def jarvis_monitor_baler_price():
+    price = get_current_price()
+    if price is None:
+        speak("Couldn't retrieve the baler price, sir.")
+        return
+
+    record_price(price)
+    best_price = get_best_price()
+
+    if best_price is None or price <= best_price:
+        speak(f"Sir, the mini round baler is currently at its best recorded price: ${price:.2f}")
+        notify_user(f"🔥 Best price alert: ${price:.2f}", title="Mini Baler Deal")
+    else:
+        speak(f"The baler is currently ${price:.2f}. Best so far was ${best_price:.2f}, sir.")
+
+# # ====== HAY WEATHER WINDOW CHECK ======
+def jarvis_check_hay_weather_window():
+    speak("Querying the Pi for hay weather analysis, sir.")
+    try:
+        response = requests.get("http://192.168.2.76:5003/hay-window", timeout=5)
+        data = response.json()
+
+        if "hay_window" in data:
+            for line in data["hay_window"]:
+                speak(line)
+        else:
+            speak("Pi returned an unexpected response, sir.")
+    except Exception as e:
+        speak(f"Could not contact the Pi: {e}")
+
+
+# ====== GAME ADVICE CORE ======
+def get_active_game():
+    """Scans running processes and returns a cleaned game name if matched."""
+    # Map known game .exe names to friendly names
+    known_games = {
+        "fortniteclient-win64-shipping.exe": "Fortnite",
+        "valorant.exe": "Valorant",
+        "eldenring.exe": "Elden Ring",
+        "minecraft.exe": "Minecraft",
+        "subnautica.exe": "Subnautica"
+
+    }
+    for proc in psutil.process_iter(['name']):
+        try:
+            name = proc.info['name'].lower()
+            if name in known_games:
+                return known_games[name]
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+    return None
+
+def get_ai_advice_for_game(game_name):
+    """Sends a prompt to the local Ollama AI model to get gameplay advice."""
+    prompt = f"Give one smart tactical gameplay tip for the game: {game_name}. Make it concise and professional."
+    try:
+        response = requests.post(
+            'http://localhost:11434/api/generate',
+            json={
+                'model': 'mistral',
+                'prompt': prompt,
+                'stream': False
+            },
+            timeout=749.1
+        )
+        print(f"DEBUG: Status code = {response.status_code}")
+
+        if response.status_code == 200:
+            result = response.json()
+            return result.get('response', '').strip()
+        else:
+            print(f"DEBUG: Response = {response.text}")
+            return None
+    except requests.exceptions.ConnectionError:
+        speak("Cannot connect to the AI service. Please ensure Ollama is running, sir.")
+    except requests.exceptions.Timeout:
+        speak("The request to the AI timed out, sir.")
+    except Exception as e:
+        speak(f"Unexpected error occurred: {str(e)}, sir.")
+    return None
+
+def jarvis_game_advice():
+    """Detects active game and provides AI-generated advice."""
+    speak("Initiating scan for active games, sir...")
+    game = get_active_game()
+
+    if not game:
+        speak("No active game detected at this moment, sir.")
+        return
+
+    speak(f"Detected {game.capitalize()}, sir. Querying tactical database now...")
+    advice = get_ai_advice_for_game(game)
+
+    if advice:
+        speak("Advice acquired, sir.")
+        speak(advice)
+        print(f"\n{'='*30}\nGAME: {game.capitalize()}\nADVICE: {advice}\n{'='*30}\n")
+    else:
+        speak("Unfortunately, no advice could be generated, sir.")
+
+# ====== OPTIONAL: AUTO-MODE LOOP ======
+def monitor_games_loop(interval=30):
+    """Continuously monitors for new games and gives advice once when a new one starts."""
+    last_game = None
+    while True:
+        game = get_active_game()
+        if game and game != last_game:
+            jarvis_game_advice()
+            last_game = game
+        time.sleep(interval)
+
+
+def ask_ai_for_tip(game_name):
+    prompt = f"Give me one smart gameplay tip for {game_name}."
+
+
+
+notifier = ToastNotifier()
+
+def notify_user(message, title="JARVIS Alert", duration=21, icon_path=None):
+
+    notifier.show_toast(
+        title,
+        message,
+        icon_path=icon_path,
+        duration=duration,
+        threaded=True
+    )
+
+
+# === CONFIGURATION ===
+JARVIS_FOLDER = r"c:\Users\pjtru\OneDrive\Projects"
+DROPBOX_FOLDER = r"c:\Users\pjtru\Dropbox\JARVIS_Backup"  # Change if needed
+
+import ctypes
+
+def hide_folder_windows(folder_path):
+    try:
+        FILE_ATTRIBUTE_HIDDEN = 0x02
+        result = ctypes.windll.kernel32.SetFileAttributesW(folder_path, FILE_ATTRIBUTE_HIDDEN)
+        if result:
+            debug_log(f"Hid folder: {folder_path}")
+        else:
+            print(f"⚠️ Failed to hide folder: {folder_path}")
+    except Exception as e:
+        print(f"❌ Error hiding folder: {e}")
+
+
+# === DEBUG LOGGING ===
+def debug_log(msg):
+    print(f"[DEBUG] {msg}")
+
+# === USB BACKUP ===
+def get_removable_drive():
+    try:
+        for partition in psutil.disk_partitions():
+            if 'removable' in partition.opts.lower():
+                return partition.mountpoint
+    except Exception as e:
+        debug_log(f"Error checking drives: {e}")
+        traceback.print_exc()
+    return None
+
+def copy_jarvis_to_drive(drive_path):
+    jarvis_folder_name = os.path.basename(JARVIS_FOLDER.rstrip("\\/"))
+    destination = os.path.join(drive_path, "JARVIS_Backup")
+
+    try:
+        target_path = os.path.join(destination, jarvis_folder_name)
+        if os.path.exists(target_path):
+            shutil.rmtree(target_path)
+            debug_log(f"Deleted existing folder: {target_path}")
+
+        for root, dirs, files in os.walk(JARVIS_FOLDER):
+            rel_path = os.path.relpath(root, JARVIS_FOLDER)
+            dest_dir = os.path.join(target_path, rel_path)
+            os.makedirs(dest_dir, exist_ok=True)
+
+            for file in files:
+                src_file = os.path.join(root, file)
+                dest_file = os.path.join(dest_dir, file)
+                try:
+                    shutil.copy2(src_file, dest_file)
+                    print(f"📁 Copied: {dest_file}")
+                except Exception as e:
+                    print(f"⚠️ Skipped file {src_file}: {e}")
+
+        print(f"\n✅ JARVIS backup complete to USB at {target_path}")
+    except Exception as e:
+        debug_log(f"Error during USB copy: {e}")
+        traceback.print_exc()
+
+
+def upload_jarvis_to_usb():
+    drive = get_removable_drive()
+    if not drive:
+        print("❌ No USB drive detected.")
+        return
+
+    print(f"🛜 USB detected at {drive}")
+    response = input("Upload JARVIS to this drive? (yes/no): ").strip().lower()
+    if response == "yes":
+        copy_jarvis_to_drive(drive)
+    else:
+        print("❌ USB upload canceled.")
+
+def upload_jarvis_to_dropbox():
+    jarvis_folder_name = os.path.basename(JARVIS_FOLDER.rstrip("\\/"))
+    destination = os.path.join(DROPBOX_FOLDER, jarvis_folder_name)
+
+    try:
+        print("☁️ Backing up JARVIS to Dropbox...")
+        if os.path.exists(destination):
+            shutil.rmtree(destination)
+            debug_log(f"Deleted existing Dropbox backup: {destination}")
+
+        for root, dirs, files in os.walk(JARVIS_FOLDER):
+            rel_path = os.path.relpath(root, JARVIS_FOLDER)
+            dest_dir = os.path.join(destination, rel_path)
+            os.makedirs(dest_dir, exist_ok=True)
+
+            for file in files:
+                src = os.path.join(root, file)
+                dst = os.path.join(dest_dir, file)
+                try:
+                    shutil.copy2(src, dst)
+                    print(f"📁 Copied: {dst}")
+                except Exception as e:
+                    print(f"⚠️ Skipped (in use): {file} — {e}")
+        print(f"✅ JARVIS backup complete to Dropbox at {destination}")
+        hide_folder_windows(os.path.join(DROPBOX_FOLDER, jarvis_folder_name))  # <== ADD THIS
+
+    except Exception as e:
+        print(f"❌ Dropbox backup failed: {e}")
+
+
+# === MENU ===
+def choose_upload_target():
+    print("\nWhere do you want to upload JARVIS?")
+    print("1. USB Drive")
+    print("2. Dropbox")
+    print("3. Both USB and Dropbox")
+    choice = input("Enter choice (1/2/3): ").strip()
+
+    if choice == "1":
+        upload_jarvis_to_usb()
+    elif choice == "2":
+        upload_jarvis_to_dropbox()
+    elif choice == "3":
+        upload_jarvis_to_usb()
+        upload_jarvis_to_dropbox()
+    else:
+        print("❌ Invalid selection.")
+
+
+
+def jarvis_clip_screen():
+    """Takes a screenshot and saves it with a timestamp."""
+    try:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"JARVIS_Clip_{timestamp}.png"
+        save_path = os.path.join("C:/JARVIS_Clips", filename)
+
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        screenshot = pyautogui.screenshot()
+        screenshot.save(save_path)
+
+        speak(f"Screen clipped and saved, sir. File name: {filename}")
+    except Exception as e:
+        speak(f"Failed to clip the screen: {e}")
+
+def jarvis_atv_troubleshooting():
+    """ATV common problems troubleshooting guide"""
+    
+    # Common ATV problems and diagnostic steps
+    problems = {
+        "won't start": "ATV Won't Start - Check: 1) Battery voltage (12.6V+), 2) Kill switch position, 3) Fuel in tank, 4) Spark plug condition, 5) Fuel shutoff valve open, 6) Clean air filter, 7) Check fuses, 8) Starter relay clicking",
+        
+        "starter motor": "Starter Motor Issues - Check: 1) Battery voltage under load, 2) Starter relay (should click), 3) Starter solenoid connections, 4) Starter motor brushes, 5) Bendix gear engagement, 6) Ground connections, 7) Ignition switch continuity",
+        
+        "blown fuse": "Blown Fuse Diagnosis - Check: 1) Main fuse (usually 30A), 2) Ignition fuse (10-15A), 3) Fuel pump fuse (10A), 4) Fan fuse (10A), 5) Look for pinched wires, 6) Water damage to connections, 7) Overloaded circuits",
+        
+        "no spark": "No Spark Issues - Check: 1) Spark plug gap (.028-.032), 2) Ignition coil resistance, 3) CDI box connections, 4) Stator output voltage, 5) Kill switch continuity, 6) Pickup coil gap (.012-.016), 7) Flywheel key sheared",
+        
+        "overheating": "Overheating Problems - Check: 1) Coolant level, 2) Radiator fins clogged, 3) Thermostat stuck closed, 4) Water pump impeller, 5) Fan operation, 6) Air bubbles in system, 7) Head gasket leak",
+        
+        "no fuel": "Fuel System Issues - Check: 1) Fuel pump operation (should buzz), 2) Fuel filter clogged, 3) Carburetor float stuck, 4) Fuel injector clogged, 5) Fuel pressure (35-45 PSI), 6) Vacuum lines cracked, 7) Petcock operation",
+        
+        "rough idle": "Rough Idle Problems - Check: 1) Carburetor adjustment, 2) Air filter dirty, 3) Vacuum leaks, 4) Valve clearance, 5) Compression test, 6) Fuel mixture screws, 7) Idle air control valve",
+        
+        "no power": "Loss of Power - Check: 1) Air filter restriction, 2) Exhaust blockage, 3) CVT belt condition, 4) Clutch engagement, 5) Fuel delivery, 6) Compression test, 7) Timing chain stretch",
+        
+        "charging system": "Charging Issues - Check: 1) Stator output (AC voltage), 2) Rectifier/regulator operation, 3) Battery load test, 4) Wiring connections corroded, 5) Voltage regulator output (13.5-14.5V), 6) Ground connections",
+        
+        "transmission": "Transmission Problems - Check: 1) Fluid level and condition, 2) CV joint clicking, 3) Differential noise, 4) Shift linkage adjustment, 5) Clutch adjustment, 6) Drive belt condition, 7) Final drive oil",
+        
+        "brakes": "Brake Issues - Check: 1) Brake fluid level, 2) Brake pad thickness, 3) Master cylinder operation, 4) Brake line leaks, 5) Caliper piston stuck, 6) Brake disc warped, 7) Air in brake lines",
+        
+        "electrical": "Electrical Problems - Check: 1) Battery terminals clean, 2) Main ground connection, 3) Fuse box corrosion, 4) Switch continuity, 5) Wiring harness damage, 6) Connector pins bent, 7) Water intrusion",
+        
+        "backfiring": "Backfiring Issues - Check: 1) Lean fuel mixture, 2) Exhaust leak at head, 3) Intake valve not seating, 4) Timing off, 5) Carburetor float level, 6) Air filter restriction, 7) Exhaust valve clearance",
+        
+        "hard shifting": "Hard Shifting Problems - Check: 1) Clutch adjustment, 2) Transmission fluid level, 3) Shift cable binding, 4) Clutch plates worn, 5) Shift fork bent, 6) Gear oil contaminated, 7) Shift drum scoring",
+        
+        "smoking": "Engine Smoking - Blue smoke: worn rings/valve seals. White smoke: coolant leak/head gasket. Black smoke: rich fuel mixture. Check: 1) Compression test, 2) Leak-down test, 3) Coolant level, 4) Air filter, 5) Carburetor jetting",
+        
+        "knocking": "Engine Knocking - Check: 1) Octane rating too low, 2) Carbon buildup, 3) Timing advanced, 4) Lean fuel mixture, 5) Overheating, 6) Rod bearing wear, 7) Piston slap from wear",
+        
+        "vibration": "Excessive Vibration - Check: 1) Engine mounts loose, 2) CV joints worn, 3) Wheels out of balance, 4) Bent rim, 5) Tire pressure uneven, 6) Drive belt worn, 7) Clutch weights damaged",
+        
+        "steering hard": "Hard Steering - Check: 1) Tire pressure low, 2) Ball joints binding, 3) Tie rod ends worn, 4) King pin bushings, 5) Wheel alignment, 6) Power steering fluid (if equipped), 7) Steering head bearings",
+        
+        "pulls to side": "Pulls to One Side - Check: 1) Tire pressure difference, 2) Wheel alignment, 3) Brake dragging, 4) Bent A-arm, 5) Uneven tire wear, 6) Suspension components worn, 7) Frame damage",
+        
+        "won't shift": "Won't Shift Gears - Check: 1) Clutch not disengaging, 2) Shift cable broken, 3) Transmission fluid low, 4) Shift fork bent, 5) Gear dogs worn, 6) Clutch basket notched, 7) Shift drum damaged",
+        
+        "dies when hot": "Dies When Hot - Check: 1) Fuel vapor lock, 2) Ignition coil breaking down, 3) CDI overheating, 4) Fuel pump weak, 5) Carburetor float sinking, 6) Stator windings failing, 7) Fuel line collapsing",
+        
+        "poor acceleration": "Poor Acceleration - Check: 1) CVT belt slipping, 2) Clutch weights wrong, 3) Air filter dirty, 4) Exhaust restricted, 5) Fuel filter clogged, 6) Compression low, 7) Timing retarded",
+        
+        "high idle": "High Idle Speed - Check: 1) Throttle cable binding, 2) Idle screw adjustment, 3) Vacuum leak, 4) Throttle butterfly sticking, 5) Idle air control valve, 6) Carburetor float level, 7) Air filter loose",
+        
+        "no reverse": "No Reverse Gear - Check: 1) Reverse cable adjustment, 2) Reverse gear dogs worn, 3) Shift fork bent, 4) Transmission fluid level, 5) Reverse idler gear, 6) Shift drum position, 7) Clutch not disengaging",
+        
+        "grinding noise": "Grinding Noise - Check: 1) Brake pads metal-to-metal, 2) CV joint worn, 3) Wheel bearings, 4) Differential gears, 5) Transmission gears, 6) Drive belt debris, 7) Clutch plates worn",
+        
+        "squealing belt": "Belt Squealing - Check: 1) CVT belt worn, 2) Clutch faces glazed, 3) Belt deflection wrong, 4) Clutch alignment, 5) Belt contaminated with oil, 6) Clutch springs weak, 7) Secondary clutch binding",
+        
+        "fuel leaking": "Fuel Leak - Check: 1) Fuel lines cracked, 2) Carburetor float needle, 3) Fuel tank cap vent, 4) Petcock seal, 5) Fuel pump diaphragm, 6) Tank puncture, 7) Fuel rail connections",
+        
+        "oil leak": "Oil Leak - Check: 1) Drain plug gasket, 2) Oil filter seal, 3) Valve cover gasket, 4) Crankcase gasket, 5) Oil pump seal, 6) Shift shaft seal, 7) Crankshaft seals",
+        
+        "coolant leak": "Coolant Leak - Check: 1) Radiator cap pressure, 2) Hose connections, 3) Water pump seal, 4) Thermostat housing, 5) Head gasket, 6) Radiator core, 7) Overflow tank crack",
+        
+        "fan not working": "Cooling Fan Issues - Check: 1) Fan fuse blown, 2) Temperature sensor, 3) Fan relay, 4) Fan motor brushes, 5) Wiring connections, 6) Thermostat stuck open, 7) ECU signal",
+        
+        "lights dim": "Dim Lights - Check: 1) Battery voltage low, 2) Alternator output, 3) Ground connections corroded, 4) Headlight bulb failing, 5) Voltage regulator, 6) Wiring resistance, 7) Switch contacts dirty",
+        
+        "speedometer not working": "Speedometer Issues - Check: 1) Speed sensor connection, 2) Sensor gear stripped, 3) Wiring harness damage, 4) Instrument cluster, 5) ECU communication, 6) Sensor air gap, 7) Magnetic pickup dirty"
+    }
+    
+    speak("What problem are you diagnosing, sir?")
+    query = listen().lower()
+    if not query or query == "none":
+        speak("I didn't catch that, sir.")
+        return
+    # Search for problem
+    found = False
+    for problem_key, solution in problems.items():
+        if query in problem_key or any(word in query for word in problem_key.split()):
+            speak(solution)
+            found = True
+            break
+    
+    if not found:
+        speak("I don't have troubleshooting steps for that specific problem, sir. Try describing it differently or check your service manual.")
+
+def jarvis_atv_lookup():
+    """Simple ATV lookup database"""
+    
+    # Simple ATV database with 45 popular ATVs
+    atvs = {
+        "kawasaki bayou klf300b": "Kawasaki Bayou KLF300B - Compression: 9.2:1, Oil: 2.6qt 10W-40, Years: 1988-2004, Displacement: 290cc, Transmission: CVT",
+        "kawasaki prairie 300": "Kawasaki Prairie 300 - Compression: 9.2:1, Oil: 2.6qt 10W-40, Years: 1999-2002, Displacement: 290cc, Transmission: CVT", 
+        "kawasaki prairie 400": "Kawasaki Prairie 400 - Compression: 9.2:1, Oil: 3.2qt 10W-40, Years: 1997-2002, Displacement: 395cc, Transmission: CVT",
+        "kawasaki bayou 400": "Kawasaki Bayou 400 - Compression: 9.2:1, Oil: 3.2qt 10W-40, Years: 1993-1999, Displacement: 395cc, Transmission: CVT",
+        "honda rancher 350": "Honda Rancher 350 - Compression: 9.0:1, Oil: 2.4qt 10W-30, Years: 2000-2006, Displacement: 329cc, Transmission: 5-speed manual",
+        "honda rancher 400": "Honda Rancher 400 - Compression: 9.0:1, Oil: 2.6qt 10W-30, Years: 2004-2007, Displacement: 397cc, Transmission: 5-speed manual",
+        "honda foreman 400": "Honda Foreman 400 - Compression: 8.8:1, Oil: 3.0qt 10W-30, Years: 1995-2003, Displacement: 395cc, Transmission: 5-speed manual",
+        "honda foreman 450": "Honda Foreman 450 - Compression: 9.2:1, Oil: 2.6qt 10W-30, Years: 1998-2004, Displacement: 433cc, Transmission: 5-speed manual",
+        "honda fourtrax 300": "Honda FourTrax 300 - Compression: 9.0:1, Oil: 2.4qt 10W-30, Years: 1988-2000, Displacement: 282cc, Transmission: 5-speed manual",
+        "honda recon 250": "Honda Recon 250 - Compression: 9.4:1, Oil: 1.9qt 10W-30, Years: 1997-2020, Displacement: 229cc, Transmission: 5-speed manual",
+        "yamaha big bear 350": "Yamaha Big Bear 350 - Compression: 8.6:1, Oil: 2.8qt 10W-30, Years: 1987-1999, Displacement: 348cc, Transmission: 5-speed manual",
+        "yamaha big bear 400": "Yamaha Big Bear 400 - Compression: 8.6:1, Oil: 3.0qt 10W-30, Years: 2000-2012, Displacement: 386cc, Transmission: 5-speed manual",
+        "yamaha kodiak 400": "Yamaha Kodiak 400 - Compression: 8.6:1, Oil: 3.0qt 10W-30, Years: 1993-2006, Displacement: 386cc, Transmission: 5-speed manual",
+        "yamaha warrior 350": "Yamaha Warrior 350 - Compression: 10.1:1, Oil: 2.2qt 10W-30, Years: 1987-2004, Displacement: 348cc, Transmission: 5-speed manual",
+        "yamaha raptor 350": "Yamaha Raptor 350 - Compression: 10.1:1, Oil: 2.2qt 10W-30, Years: 2004-2013, Displacement: 348cc, Transmission: 5-speed manual",
+        "yamaha banshee 350": "Yamaha Banshee 350 - Compression: 6.6:1, Oil: 2-stroke premix, Years: 1987-2006, Displacement: 347cc, Transmission: 6-speed manual",
+        "polaris sportsman 400": "Polaris Sportsman 400 - Compression: 9.5:1, Oil: 2.0qt 5W-50, Years: 2001-2014, Displacement: 455cc, Transmission: CVT",
+        "polaris sportsman 500": "Polaris Sportsman 500 - Compression: 9.5:1, Oil: 2.5qt 5W-50, Years: 1996-2012, Displacement: 498cc, Transmission: CVT",
+        "polaris scrambler 400": "Polaris Scrambler 400 - Compression: 9.5:1, Oil: 2.0qt 5W-50, Years: 1995-2002, Displacement: 455cc, Transmission: CVT",
+        "polaris magnum 425": "Polaris Magnum 425 - Compression: 9.5:1, Oil: 2.5qt 5W-50, Years: 1995-1998, Displacement: 425cc, Transmission: CVT",
+        "suzuki king quad 300": "Suzuki King Quad 300 - Compression: 9.3:1, Oil: 2.8qt 10W-40, Years: 1991-2002, Displacement: 280cc, Transmission: 5-speed manual",
+        "suzuki king quad 400": "Suzuki King Quad 400 - Compression: 9.3:1, Oil: 3.1qt 10W-40, Years: 2008-2017, Displacement: 376cc, Transmission: CVT",
+        "suzuki eiger 400": "Suzuki Eiger 400 - Compression: 9.3:1, Oil: 3.1qt 10W-40, Years: 2002-2007, Displacement: 376cc, Transmission: CVT",
+        "suzuki vinson 500": "Suzuki Vinson 500 - Compression: 9.3:1, Oil: 3.6qt 10W-40, Years: 2002-2007, Displacement: 493cc, Transmission: CVT",
+        "suzuki quadrunner 250": "Suzuki QuadRunner 250 - Compression: 9.2:1, Oil: 1.6qt 10W-40, Years: 1985-1987, Displacement: 246cc, Transmission: 5-speed manual",
+        "arctic cat 400": "Arctic Cat 400 - Compression: 9.8:1, Oil: 3.0qt 0W-30, Years: 1998-2008, Displacement: 375cc, Transmission: CVT",
+        "arctic cat 500": "Arctic Cat 500 - Compression: 9.8:1, Oil: 3.5qt 0W-30, Years: 1998-2001, Displacement: 493cc, Transmission: CVT",
+        "arctic cat 300": "Arctic Cat 300 - Compression: 9.5:1, Oil: 2.5qt 0W-30, Years: 1998-2005, Displacement: 280cc, Transmission: CVT",
+        "can am outlander 400": "Can-Am Outlander 400 - Compression: 10.3:1, Oil: 3.5qt 5W-40, Years: 2003-2015, Displacement: 400cc, Transmission: CVT",
+        "can am ds 250": "Can-Am DS 250 - Compression: 10.3:1, Oil: 1.3qt 10W-40, Years: 2006-2018, Displacement: 249cc, Transmission: 5-speed manual",
+        "honda trx 400ex": "Honda TRX 400EX - Compression: 9.0:1, Oil: 2.6qt 10W-30, Years: 1999-2014, Displacement: 397cc, Transmission: 5-speed manual",
+        "honda trx 450r": "Honda TRX 450R - Compression: 12.0:1, Oil: 1.9qt 10W-30, Years: 2004-2009, Displacement: 449cc, Transmission: 5-speed manual",
+        "yamaha yfz 450": "Yamaha YFZ 450 - Compression: 12.0:1, Oil: 1.6qt 10W-30, Years: 2004-2013, Displacement: 449cc, Transmission: 5-speed manual",
+        "kawasaki kfx 400": "Kawasaki KFX 400 - Compression: 10.6:1, Oil: 2.6qt 10W-40, Years: 2003-2006, Displacement: 398cc, Transmission: 5-speed manual",
+        "polaris predator 500": "Polaris Predator 500 - Compression: 10.5:1, Oil: 2.0qt 5W-50, Years: 2003-2007, Displacement: 499cc, Transmission: 5-speed manual",
+        "honda trx 300": "Honda TRX 300 - Compression: 9.0:1, Oil: 2.4qt 10W-30, Years: 1988-2000, Displacement: 282cc, Transmission: 5-speed manual",
+        "yamaha timberwolf 250": "Yamaha Timberwolf 250 - Compression: 9.5:1, Oil: 1.6qt 10W-30, Years: 1992-2000, Displacement: 229cc, Transmission: 5-speed manual",
+        "polaris trail boss 250": "Polaris Trail Boss 250 - Compression: 9.0:1, Oil: 1.9qt 10W-30, Years: 1985-1999, Displacement: 244cc, Transmission: CVT",
+        "suzuki ozark 250": "Suzuki Ozark 250 - Compression: 9.2:1, Oil: 1.6qt 10W-40, Years: 2002-2014, Displacement: 246cc, Transmission: CVT",
+        "kawasaki mojave 250": "Kawasaki Mojave 250 - Compression: 9.4:1, Oil: 1.6qt 10W-40, Years: 1987-2004, Displacement: 248cc, Transmission: 5-speed manual",
+        "honda trx 700xx": "Honda TRX 700XX - Compression: 9.2:1, Oil: 3.4qt 10W-30, Years: 2008-2009, Displacement: 686cc, Transmission: 5-speed manual",
+        "yamaha grizzly 700": "Yamaha Grizzly 700 - Compression: 9.2:1, Oil: 3.2qt 10W-40, Years: 2007-2015, Displacement: 686cc, Transmission: CVT",
+        "polaris ranger 500": "Polaris Ranger 500 - Compression: 9.5:1, Oil: 2.0qt 5W-50, Years: 1999-2009, Displacement: 498cc, Transmission: CVT",
+        "can am renegade 800": "Can-Am Renegade 800 - Compression: 10.5:1, Oil: 4.0qt 5W-40, Years: 2007-2012, Displacement: 799cc, Transmission: CVT",
+        "arctic cat thundercat 1000": "Arctic Cat Thundercat 1000 - Compression: 10.5:1, Oil: 4.5qt 0W-30, Years: 2008-2017, Displacement: 951cc, Transmission: CVT",
+        "honda trx 250r": "Honda TRX 250R - Compression: 11.8:1, Oil: 1.6qt 10W-30, Years: 1986-1989, Displacement: 246cc, Transmission: 6-speed manual",
+"yamaha blaster 200": "Yamaha Blaster 200 - Compression: 6.6:1, Oil: 2-stroke premix, Years: 1988-2006, Displacement: 195cc, Transmission: 5-speed manual",
+"honda trx 90": "Honda TRX 90 - Compression: 9.0:1, Oil: 0.8qt 10W-30, Years: 1993-2005, Displacement: 86cc, Transmission: 3-speed automatic",
+"kawasaki tecate 250": "Kawasaki Tecate 250 - Compression: 6.6:1, Oil: 2-stroke premix, Years: 1984-1987, Displacement: 246cc, Transmission: 6-speed manual",
+"suzuki lt250r": "Suzuki LT250R - Compression: 6.6:1, Oil: 2-stroke premix, Years: 1985-1992, Displacement: 249cc, Transmission: 6-speed manual",
+"honda trx 250x": "Honda TRX 250X - Compression: 9.4:1, Oil: 1.9qt 10W-30, Years: 1987-1992, Displacement: 229cc, Transmission: 5-speed manual",
+"yamaha tri-z 250": "Yamaha Tri-Z 250 - Compression: 6.6:1, Oil: 2-stroke premix, Years: 1985-1986, Displacement: 246cc, Transmission: 6-speed manual",
+"polaris outlaw 450": "Polaris Outlaw 450 - Compression: 10.5:1, Oil: 2.0qt 5W-50, Years: 2008-2010, Displacement: 499cc, Transmission: 5-speed manual",
+"can am ds 450": "Can-Am DS 450 - Compression: 12.0:1, Oil: 1.4qt 10W-40, Years: 2008-2015, Displacement: 449cc, Transmission: 5-speed manual",
+"suzuki ltr 450": "Suzuki LTR 450 - Compression: 12.0:1, Oil: 1.3qt 10W-40, Years: 2006-2011, Displacement: 449cc, Transmission: 5-speed manual",
+"honda trx 125": "Honda TRX 125 - Compression: 9.0:1, Oil: 1.1qt 10W-30, Years: 1985-1988, Displacement: 124cc, Transmission: 3-speed automatic",
+"yamaha moto-4 350": "Yamaha Moto-4 350 - Compression: 8.6:1, Oil: 2.8qt 10W-30, Years: 1987-1995, Displacement: 348cc, Transmission: 5-speed manual",
+"polaris phoenix 200": "Polaris Phoenix 200 - Compression: 9.0:1, Oil: 1.5qt 5W-50, Years: 2005-2017, Displacement: 196cc, Transmission: CVT",
+"arctic cat dvx 400": "Arctic Cat DVX 400 - Compression: 10.6:1, Oil: 2.6qt 0W-30, Years: 2004-2008, Displacement: 398cc, Transmission: 5-speed manual",
+"suzuki lt 160": "Suzuki LT 160 - Compression: 9.2:1, Oil: 1.3qt 10W-40, Years: 1989-2004, Displacement: 159cc, Transmission: 5-speed manual",
+"honda trx 200": "Honda TRX 200 - Compression: 9.0:1, Oil: 1.6qt 10W-30, Years: 1984-1986, Displacement: 192cc, Transmission: 5-speed manual",
+"yamaha wolverine 350": "Yamaha Wolverine 350 - Compression: 8.6:1, Oil: 2.8qt 10W-30, Years: 1995-2005, Displacement: 348cc, Transmission: 5-speed manual",
+"polaris xplorer 400": "Polaris Xplorer 400 - Compression: 9.5:1, Oil: 2.0qt 5W-50, Years: 1995-2002, Displacement: 455cc, Transmission: CVT",
+"can am traxter 500": "Can-Am Traxter 500 - Compression: 10.3:1, Oil: 3.5qt 5W-40, Years: 1999-2005, Displacement: 499cc, Transmission: CVT",
+"arctic cat 250": "Arctic Cat 250 - Compression: 9.5:1, Oil: 2.0qt 0W-30, Years: 1999-2005, Displacement: 244cc, Transmission: CVT"
+
+    }
+    
+    speak("What ATV do you need information on, sir?")
+    query = listen().lower()
+    
+    if not query or query == "none":
+        speak("I didn't catch that, sir.")
+        return
+    
+    # Search for ATV
+    found = False
+    for atv_key, info in atvs.items():
+        if query in atv_key:
+            speak(info)
+            found = True
+            break
+    
+    if not found:
+        speak("I don't have that ATV in my database, sir.")
+
+
+def jarvis_send_discord_dm():
+    """Send a pre-written Discord DM"""
+    speak("Sending Discord message, sir.")
+    
+    # Discord configuration - You'll need to customize these
+    BOT_TOKEN = 'T83N55c1ehwj5_Xde8s_iM0JQE79CKZw'  # Replace with your Discord bot token
+    USER_ID = 1293648773972758671 
+
+    MESSAGE = "JARVIS: Emergency mode has been activated, sir"
+    
+    async def send_dm():
+        try:
+            # Create Discord client with minimal intents
+            intents = discord.Intents.default()
+            intents.message_content = True
+            client = discord.Client(intents=intents)
+            
+            @client.event
+            async def on_ready():
+                try:
+                    # Get the user to send DM to
+                    user = await client.fetch_user(USER_ID)
+                    if user:
+                        # Send the DM
+                        await user.send(MESSAGE)
+                        print(f"Discord DM sent to {user.name}")
+                        speak(f"Discord message sent successfully to {user.name}, sir.")
+                    else:
+                        speak("Could not find the Discord user, sir.")
+                except discord.Forbidden:
+                    speak("Cannot send DM to this user. They may have DMs disabled, sir.")
+                except Exception as e:
+                    speak(f"Error sending Discord message: {str(e)}, sir.")
+                finally:
+                    await client.close()
+            
+            # Start the bot
+            await client.start(BOT_TOKEN)
+            
+        except discord.LoginFailure:
+            speak("Discord bot token is invalid, sir.")
+        except Exception as e:
+            speak(f"Discord error: {str(e)}, sir.")
+    try:
+        # Run the async function
+        asyncio.run(send_dm())
+    except Exception as e:
+        speak(f"Failed to send Discord message: {str(e)}, sir.")
+
+
+def jarvis_intrusion_scan():
+    speak("Running intrusion detection scan, sir.")
+    try:
+        # ------------------ User Sessions ------------------
+        speak("Checking for active user sessions.")
+        if platform.system() == "Windows":
+            user_sessions = os.popen("query user").read()
+        else:
+            user_sessions = os.popen("who").read()
+        print("Active Sessions:\n", user_sessions)
+
+        # ------------------ Active Connections ------------------
+        speak("Analyzing active network connections.")
+        netstat_cmd = "netstat -ano" if platform.system() == "Windows" else "netstat -tunp"
+        connections = os.popen(netstat_cmd).read()
+        suspicious_lines = [line for line in connections.splitlines() if "ESTABLISHED" in line or "LISTEN" in line]
+        for line in suspicious_lines:
+            print("Network:", line)
+
+        # ------------------ Suspicious Processes ------------------
+        speak("Scanning for suspicious processes.")
+        keywords = ["rat", "remcos", "keylogger", "meterpreter", "cmd.exe", "powershell", "shell", "svchost.exe", "remote"]
+        process_list = os.popen("tasklist").read().lower() if platform.system() == "Windows" else os.popen("ps aux").read().lower()
+
+        flagged = False
+        for k in keywords:
+            if k in process_list:
+                print(f"[!] Suspicious process: {k}")
+                flagged = True
+
+        if not flagged:
+            print("✅ No known suspicious processes found.")
+
+        speak("Intrusion scan complete.")
+        
+    except Exception as e:
+        print(f"[ERROR] Intrusion scan failed: {e}")
+        speak("There was an error during the intrusion scan, sir.")
+
+
+
+
+
+
+def jarvis_emergency_wifi_off():
+    """Emergency WiFi disconnect - simple and fast"""
+    import subprocess
+    
+    speak("Emergency WiFi shutdown, sir.")
+    
+    try:
+        # Quick disconnect
+        subprocess.run(['netsh', 'wlan', 'disconnect'], timeout=3)
+        
+        # Disable WiFi adapter
+        subprocess.run(['netsh', 'interface', 'set', 'interface', 
+                       'Wi-Fi', 'admin=disabled'], timeout=3)
+        
+        # Backup method with PowerShell
+        subprocess.run(['powershell', '-Command', 
+                       'Disable-NetAdapter -Name "*Wi-Fi*" -Confirm:$false'], 
+                      timeout=5)
+        
+        speak("WiFi emergency shutdown complete, sir.")
+        
+    except:
+        # Last resort - try to disable all network
+        try:
+            subprocess.run(['powershell', '-Command', 
+                           'Get-NetAdapter | Disable-NetAdapter -Confirm:$false'], 
+                          timeout=5)
+            speak("All network adapters disabled, sir.")
+        except:
+            speak("Emergency WiFi shutdown failed, sir.")
+def jarvis_shutdown_system():
+    """Shutdown the computer immediately"""
+    speak("Shutting down system now, sir.")
+    try:
+        os.system("shutdown /s /t 3")  # 3 second delay for the speech to finish
+    except Exception as e:
+        speak(f"Error shutting down system: {str(e)}")
+
+def jarvis_check_disk_space():
+    """Check available disk space on all drives"""
+    speak("Checking disk space, sir.")
+    
+    try:
+        print("\n" + "="*40)
+        print("DISK SPACE REPORT")
+        print("="*40)
+        
+        # Get all disk partitions
+        partitions = psutil.disk_partitions()
+        
+        for partition in partitions:
+            try:
+                # Get disk usage for each partition
+                usage = psutil.disk_usage(partition.mountpoint)
+                
+                # Convert bytes to GB
+                total_gb = usage.total / (1024**3)
+                used_gb = usage.used / (1024**3)
+                free_gb = usage.free / (1024**3)
+                percent_used = (usage.used / usage.total) * 100
+                
+                print(f"\nDrive {partition.mountpoint}")
+                print(f"  Total: {total_gb:.2f} GB")
+                print(f"  Used: {used_gb:.2f} GB ({percent_used:.1f}%)")
+                print(f"  Free: {free_gb:.2f} GB")
+                
+                # Warning for low disk space
+                if percent_used > 90:
+                    print(f"  ⚠️  WARNING: Drive {partition.mountpoint} is {percent_used:.1f}% full!")
+                    speak(f"Warning, sir! Drive {partition.mountpoint} is critically low on space at {percent_used:.1f}% full.")
+                elif percent_used > 80:
+                    print(f"  ⚠️  Drive {partition.mountpoint} is getting full at {percent_used:.1f}%")
+                    speak(f"Drive {partition.mountpoint} is getting full at {percent_used:.1f}%, sir.")
+                
+            except PermissionError:
+                print(f"\nDrive {partition.mountpoint}: Access denied")
+                continue
+        
+        print("="*40)
+        speak("Disk space check complete, sir.")
+        
+    except Exception as e:
+        speak(f"Error checking disk space: {str(e)}")
+
+def jarvis_compose_text():
+    speak("What type of text would you like me to compose, sir?")
+    
+    text_type = input("Type (email, letter, report, etc.): ")
+    topic = input("Topic or main points: ")
+    tone = input("Tone (professional, casual, formal): ")
+
+    try:
+        response = requests.post(
+            "http://192.168.2.101:5000/compose-text",  # Replace with your Pi’s IP
+            json={
+                "type": text_type,
+                "topic": topic,
+                "tone": tone
+            },
+            timeout=800
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            composed_text = result.get("text", "").strip()
+
+            filename = f"jarvis_composed_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+            with open(filename, 'w') as f:
+                f.write(composed_text)
+
+            print(f"\n{'='*50}")
+            print(composed_text)
+            print(f"{'='*50}")
+            speak(f"Text composed and saved as {filename}, sir.")
+        else:
+            speak("The Pi returned an error while composing, sir.")
+            print(response.json())
+
+    except Exception as e:
+        speak(f"Text composition failed to connect to the Pi: {str(e)}")
+
+# Minimal AI Summarization for JARVIS - Add to your main file
+
+def jarvis_summarize():
+    """AI text summarization using Ollama"""
+    speak("Paste your text and press Enter twice when done, sir.")
+    
+    lines = []
+    print("\n--- Paste text below ---")
+    while True:
+        line = input()
+        if line == "" and lines and lines[-1] == "":
+            break
+        lines.append(line)
+    
+    text = "\n".join(lines).strip()
+    if len(text) < 50:
+        speak("Text too short to summarize, sir.")
+        return
+    
+    speak("Processing with AI, sir.")
+    try:
+        response = requests.post(
+            'http://localhost:11434/api/generate', 
+            json={
+                'model': 'mistral', 
+                'prompt': f"Summarize this text:\n\n{text}", 
+                'stream': False
+            }, 
+            timeout=749.1
+        )
+        
+        print(f"DEBUG: Status code = {response.status_code}")  # Debug line
+        
+        if response.status_code == 200:
+            result = response.json()
+            summary = result.get('response', '').strip()
+            if summary:
+                speak("Here's your summary, sir:")
+                print(f"\n{'='*30}\n{summary}\n{'='*30}\n")
+            else:
+                speak("AI returned empty response, sir.")
+        else:
+            speak(f"AI service error {response.status_code}, sir.")
+            print(f"DEBUG: Response = {response.text}")  # Debug line
+            
+    except requests.exceptions.ConnectionError:
+        speak("Cannot connect to AI. Check if Ollama is running on port 11434, sir.")
+    except requests.exceptions.Timeout:
+        speak("AI request timed out, sir.")
+    except Exception as e:
+        speak(f"AI error: {str(e)}, sir.")
+        print(f"DEBUG: Exception = {e}")  # Debug line
+def send_wake_on_lan(mac_address, broadcast_ip="255.255.255.255"):
+    """Send Wake-on-LAN magic packet"""
+    try:
+        # Remove any separators from MAC address
+        mac_address = mac_address.replace(':', '').replace('-', '').replace(' ', '')
+        
+        # Convert MAC address to bytes
+        mac_bytes = bytes.fromhex(mac_address)
+        
+        # Create magic packet: 6 bytes of 0xFF followed by 16 repetitions of MAC address
+        magic_packet = b'\xFF' * 6 + mac_bytes * 16
+        
+        # Send the packet
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        sock.sendto(magic_packet, (broadcast_ip, 9))  # Port 9 is standard for WOL
+        sock.close()
+        
+        return True
+    except Exception as e:
+        print(f"WOL Error: {e}")
+        return False
+
+def jarvis_wake_ps4():
+    """Wake PS4 from rest mode"""
+    ps4_ip = "192.168.2.19"
+    
+    # You need to replace this with your PS4's actual MAC address
+    # You can find it in PS4 Settings > System > Console Information
+    ps4_mac = "1c:98:c1:96:b9:09"  # REPLACE THIS WITH YOUR PS4'S MAC ADDRESS
+    
+    speak("Checking PS4 status, sir.")
+    
+    # First check if PS4 is already online with more thorough check
+    if ping(ps4_ip):
+        speak("PS4 appears to be online, sir. Let me double-check.")
+        # Double check with a second ping
+        time.sleep(1)
+        if ping(ps4_ip):
+            speak("PS4 is confirmed online, sir.")
+            return
+    
+    speak("PS4 appears to be offline. Sending wake signal, sir.")
+    
+    if ps4_mac == "00:00:00:00:00:00":
+        speak("PS4 MAC address not configured. Please update the MAC address in the code, sir.")
+        print("To find your PS4's MAC address:")
+        print("1. Go to PS4 Settings > System > Console Information")
+        print("2. Look for 'MAC Address (LAN)' or 'MAC Address (Wi-Fi)'")
+        print("3. Update the ps4_mac variable in the jarvis_wake_ps4 function")
+        return
+    
+    try:
+        # Send Wake-on-LAN magic packet
+        if send_wake_on_lan(ps4_mac):
+            speak("Wake signal sent to PS4, sir. Please wait a moment for it to boot up.")
+            
+            # Wait and check if PS4 comes online
+            speak("Monitoring PS4 startup, sir.")
+            for i in range(30):  # Check for 30 seconds
+                time.sleep(1)
+                if ping(ps4_ip):
+                    speak("PS4 is now online, sir.")
+                    return
+            
+            speak("PS4 wake signal sent, but device may take longer to start up, sir.")
+        else:
+            speak("Failed to send wake signal to PS4, sir.")
+            
+    except Exception as e:
+        speak(f"Unable to wake PS4: {str(e)}, sir.")
+
+
+
+def jarvis_ps4_status():
+    """Check if PS4 is online using manual IP"""
+    ps4_ip = "192.168.2.19"
+    try:
+        if ping(ps4_ip):
+            speak(f"PS4 is online at {ps4_ip}, sir.")
+            return ps4_ip
+        else:
+            speak("PS4 is offline or not responding, sir.")
+            return None
+    except Exception as e:
+        speak(f"Error checking PS4 status: {str(e)}")
+        return None
+
+
+
+
+def jarvis_change_wallpaper():
+    wallpapers_folder = r"c:\Users\pjtru\OneDrive\Projects\Wallpapers"  # Customize this path
+    try:
+        files = [f for f in os.listdir(wallpapers_folder) if f.lower().endswith(('.jpg', '.jpeg', '.png', '.bmp'))]
+        if not files:
+            speak("No wallpapers found in your wallpaper folder, sir.")
+            return
+        selected = random.choice(files)
+        full_path = os.path.join(wallpapers_folder, selected)
+        ctypes.windll.user32.SystemParametersInfoW(20, 0, full_path, 3)
+        speak("Wallpaper changed successfully, sir.")
+    except Exception as e:
+        speak(f"Failed to change wallpaper: {e}")
+
+
+
+
+
+def find_usb_drives():
+    """Find all available USB drives"""
+    usb_drives = []
+    for drive in psutil.disk_partitions():
+        if 'removable' in drive.opts:
+            usb_drives.append(drive.mountpoint)
+    return usb_drives
+
+def jarvis_emergency_mode():
+    """Silent emergency recording - 90 seconds to USB drive"""
+    try:
+        # Find USB drives
+        usb_drives = find_usb_drives()
+        if not usb_drives:
+            # Fallback to local emergency folder
+            emergency_folder = "C:/JARVIS_Emergency"
+            os.makedirs(emergency_folder, exist_ok=True)
+            save_location = emergency_folder
+        else:
+            # Use first available USB drive
+            save_location = usb_drives[0]
+        
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        video_filename = f"EMERGENCY_{timestamp}.avi"
+        video_path = os.path.join(save_location, video_filename)
+        
+        # Initialize camera
+        cap = cv2.VideoCapture(0)  # 0 for default camera
+        if not cap.isOpened():
+            return  # Silent failure - no indication to potential threat
+        
+        # Set video properties
+        fps = 20
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        
+        # Define codec and create VideoWriter
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        out = cv2.VideoWriter(video_path, fourcc, fps, (width, height))
+        
+        # Record for 90 seconds
+        start_time = time.time()
+        while time.time() - start_time < 90:  # 90 seconds
+            ret, frame = cap.read()
+            if ret:
+                out.write(frame)
+            else:
+                break
+        
+        # Clean up
+        cap.release()
+        out.release()
+        cv2.destroyAllWindows()
+        
+        # Create a log file with timestamp (silent)
+        log_filename = f"EMERGENCY_LOG_{timestamp}.txt"
+        log_path = os.path.join(save_location, log_filename)
+        with open(log_path, 'w') as f:
+            f.write(f"JARVIS Emergency Mode Activated\n")
+            f.write(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Video saved: {video_filename}\n")
+            f.write(f"Duration: 90 seconds\n")
+            f.write(f"Location: {save_location}\n")
+        
+    except Exception as e:
+        # Silent failure - write error to emergency log if possible
+        try:
+            error_log = os.path.join("C:/", f"JARVIS_EMERGENCY_ERROR_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt")
+            with open(error_log, 'w') as f:
+                f.write(f"Emergency mode error: {str(e)}\n")
+                f.write(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        except:
+            pass  # Complete silent failure
+
+ 
+# TV Control Functions - Global variable to store connected TV
+current_cast = None
+def jarvis_tv_status():
+    """Get detailed TV status"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    try:
+        status = current_cast.status
+        mc = current_cast.media_controller
+        
+        app_name = status.display_name if status.display_name else "Home Screen"
+        volume = int(status.volume_level * 100)
+        muted = "muted" if status.volume_muted else "unmuted"
+        
+        status_message = f"TV Status: Currently on {app_name}, Volume at {volume}% and {muted}."
+        
+        # Check if media is playing
+        if mc.status.player_state:
+            media_title = mc.status.title or "Unknown"
+            player_state = mc.status.player_state
+            if mc.status.duration and mc.status.current_time:
+                duration_mins = int(mc.status.duration / 60)
+                current_mins = int(mc.status.current_time / 60)
+                status_message += f" Playing: {media_title}, {current_mins} of {duration_mins} minutes, Status: {player_state}."
+            else:
+                status_message += f" Media: {media_title}, Status: {player_state}."
+        
+        speak(status_message)
+    except Exception as e:
+        speak(f"Error getting TV status: {str(e)}")
+
+
+def find_google_tv():
+    """Discover and connect to Google TV/Chromecast devices"""
+    global current_cast
+    try:
+        print("Searching for Google TV devices...")
+        chromecasts, browser = pychromecast.get_chromecasts()
+        
+        if not chromecasts:
+            return None, "No Chromecast or Google TV devices found."
+        
+        # Look for Google TV or use first available device
+        google_tv = None
+        for cast in chromecasts:
+            if "Google" in cast.cast_info.friendly_name or "TV" in cast.cast_info.friendly_name:
+                google_tv = cast
+                break
+        if not google_tv:
+            google_tv = chromecasts[0]
+        
+        google_tv.wait()
+        current_cast = google_tv
+        return google_tv, f"Connected to {google_tv.cast_info.friendly_name}"
+    except Exception as e:
+        return None, f"Error finding Google TV: {str(e)}"
+
+def jarvis_tv_power_on():
+    """Turn on the TV"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    try:
+        current_cast.start_app('CC1AD845')  # Default Media Receiver
+        speak("TV is powering on, sir.")
+    except Exception as e:
+        speak(f"Error turning on TV: {str(e)}")
+
+def jarvis_tv_power_off():
+    """Turn off the TV"""
+    global current_cast
+    if not current_cast:
+        speak("No TV connection found.")
+        return
+    try:
+        current_cast.quit_app()
+        speak("TV is powering off, sir.")
+    except Exception as e:
+        speak(f"Error turning off TV: {str(e)}")
+
+def jarvis_tv_volume_up():
+    """Increase TV volume"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    try:
+        current_volume = current_cast.status.volume_level
+        new_volume = min(1.0, current_volume + 0.1)
+        current_cast.set_volume(new_volume)
+        speak(f"Volume increased to {int(new_volume * 100)}%, sir.")
+    except Exception as e:
+        speak(f"Error increasing volume: {str(e)}")
+
+def jarvis_tv_volume_down():
+    """Decrease TV volume"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    try:
+        current_volume = current_cast.status.volume_level
+        new_volume = max(0.0, current_volume - 0.1)
+        current_cast.set_volume(new_volume)
+        speak(f"Volume decreased to {int(new_volume * 100)}%, sir.")
+    except Exception as e:
+        speak(f"Error decreasing volume: {str(e)}")
+
+def jarvis_tv_mute():
+    """Mute/unmute the TV"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    try:
+        current_mute = current_cast.status.volume_muted
+        current_cast.set_volume_muted(not current_mute)
+        if current_mute:
+            speak("TV unmuted, sir.")
+        else:
+            speak("TV muted, sir.")
+    except Exception as e:
+        speak(f"Error muting TV: {str(e)}")
+
+def jarvis_launch_youtube():
+    """Launch YouTube on TV"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    try:
+        current_cast.start_app('233637DE')  # YouTube app ID
+        speak("Launching YouTube on your TV, sir.")
+    except Exception as e:
+        speak(f"Error launching YouTube: {str(e)}")
+
+
+def jarvis_tv_home():
+    """Navigate TV to home screen"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    try:
+        # Quit current app to return to home screen
+        current_cast.quit_app()
+        speak("Navigating to TV home screen, sir.")
+    except Exception as e:
+        speak(f"Error navigating to home screen: {str(e)}")
+
+def jarvis_connect_tv():
+    """Connect to TV and get status"""
+    cast, message = find_google_tv()
+    if cast:
+        try:
+            status = cast.status
+            app_name = status.display_name if status.display_name else "Home Screen"
+            volume = int(status.volume_level * 100)
+            muted = "muted" if status.volume_muted else "unmuted"
+            speak(f"Connected to TV. Currently on {app_name}, Volume at {volume}% and {muted}, sir.")
+        except:
+            speak(message)
+    else:
+        speak(message)
+
+
+
+
+
+LEARNED_FACTS_FILE = "learned_facts.txt"
+THREAT_SCAN_FILE = "last_ai_threat_scan.txt"
+THREAT_CACHE_FILE = "ai_threat_titles.txt"
+THREAT_SCAN_INTERVAL_HOURS = 10.1
+
+def auto_check_ai_threats():
+    now = datetime.now()
+    if os.path.exists(THREAT_SCAN_FILE):
+        with open(THREAT_SCAN_FILE, 'r') as f:
+            last_time = datetime.fromisoformat(f.read().strip())
+        elapsed = (now - last_time).total_seconds() / 3600
+        if elapsed >= THREAT_SCAN_INTERVAL_HOURS:
+            jarvis_check_ai_threats(auto=True)
+    else:
+        jarvis_check_ai_threats(auto=True)
+
+
+def jarvis_check_ai_threats(auto=False):
+    speak("Initiating AI threat scan, sir." if not auto else "Performing automated AI threat check.")
+    try:
+        url = "https://api.pushshift.io/reddit/search/submission/?q=ai+leak+OR+rogue+AI+OR+openai+breach&sort=desc&size=5"
+        response = requests.get(url).json()
+        results = response.get("data", [])
+
+        if not results:
+            if not auto:
+                speak("No recent AI-related threats found in the feed.")
+            return
+
+        new_titles = [post['title'] for post in results if 'title' in post]
+        
+        # Load cache
+        if os.path.exists(THREAT_CACHE_FILE):
+            with open(THREAT_CACHE_FILE, 'r') as f:
+                old_titles = f.read().splitlines()
+        else:
+            old_titles = []
+
+        unseen = [title for title in new_titles if title not in old_titles]
+
+        if unseen:
+            speak(f"Detected {len(unseen)} new posts related to AI threats.")
+            for title in unseen:
+                speak(title)
+                print(title)
+            with open(THREAT_CACHE_FILE, 'w') as f:
+                f.write('\n'.join(new_titles))
+        else:
+            if not auto:
+                speak("No new AI threat activity since the last scan.")
+
+        # Save scan timestamp
+        with open(THREAT_SCAN_FILE, 'w') as f:
+            f.write(datetime.now().isoformat())
+
+    except Exception as e:
+        speak("An error occurred during the AI threat scan, sir.")
+        print(f"[Threat Scan Error] {e}")
+
+
+
+
+def jarvis_save_latest_mars_image():
+    NASA_API_KEY = "V2RZZrfXqRyHTuJtUT4drszTJ7XtcTIil3Ae9g1g"  # Replace with your personal key if you have one
+    SAVE_PATH = "./space_images/latest_mars.jpg"
+    ROVER_NAME = "perseverance"  # You can also use, 'curiosity', 'spirit', 'opportunity'
+
+    try:
+        url = f"https://api.nasa.gov/mars-photos/api/v1/rovers/{ROVER_NAME}/latest_photos?api_key={NASA_API_KEY}"
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+    except Exception as e:
+        speak(f"I had trouble contacting NASA: {e}")
+        return
+
+    photos = data.get("latest_photos", [])
+    if not photos:
+        speak("There are no new photos from the rover, sir.")
+        return
+
+    # Use the first image
+    image_url = photos[0]["img_src"]
+    date_taken = photos[0]["earth_date"]
+
+    try:
+        img_data = requests.get(image_url).content
+        os.makedirs(os.path.dirname(SAVE_PATH), exist_ok=True)
+        with open(SAVE_PATH, "wb") as f:
+            f.write(img_data)
+        speak(f"Latest Mars photo from {date_taken} has been saved to the space_images folder.")
+    except Exception as e:
+        speak(f"I couldn't save the image properly: {e}")
+
+def jarvis_get_natural_events_from_command(command):
+    import requests
+
+    # Keyword-to-category map
+    category_map = {
+        "wildfire": "wildfires",
+        "wildfires": "wildfires",
+        "fire": "wildfires",
+        "volcano": "volcanoes",
+        "volcanoes": "volcanoes",
+        "earthquake": "earthquakes",
+        "earthquakes": "earthquakes",
+        "storm": "severeStorms",
+        "hurricane": "severeStorms",
+        "drought": "drought",
+        "flood": "floods",
+        "landslide": "landslides",
+        "iceberg": "icebergs",
+        "dust": "dustAndHaze",
+        "haze": "dustAndHaze",
+        "disaster": "all"
+    }
+
+    selected_category = "wildfires"  # default
+    for word, category in category_map.items():
+        if word in command:
+            selected_category = category
+            break
+
+    if selected_category == "all":
+        url = "https://eonet.gsfc.nasa.gov/api/v3/events?status=open"
+    else:
+        url = f"https://eonet.gsfc.nasa.gov/api/v3/events?category={selected_category}&status=open"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+    except Exception as e:
+        speak(f"I encountered an error getting natural disaster data: {e}")
+        return
+
+    events = data.get("events", [])
+    if not events:
+        speak(f"No current {selected_category} reported at the moment.")
+        return
+
+    speak(f"There are {len(events)} current {selected_category.replace('And', ' and ')} events. Here are some highlights:")
+
+    for event in events[:3]:
+        title = event.get("title", "Unknown Event")
+        geometry = event.get("geometry", [])
+        latest = geometry[-1] if geometry else {}
+        coords = latest.get("coordinates", [])
+        date = latest.get("date", "Unknown Date")
+        lat, lon = coords if len(coords) == 2 else ("Unknown", "Unknown")
+        speak(f"{title}, reported on {date[:10]}, located near latitude {lat} and longitude {lon}.")
+
+NASA_API_KEY = 'V2RZZrfXqRyHTuJtUT4drszTJ7XtcTIil3Ae9g1g'  # Replace with your NASA API key
+from datetime import datetime, timedelta, timezone
+from time import sleep
+from typing import Optional, Dict, Any, List
+# constants
+EARTH_RADIUS_KM = 6371.0
+ATMOSPHERE_BUFFER_KM = 100.0  # small buffer to account for atmosphere / modelling uncertainty
+IMPACT_THRESHOLD_KM = EARTH_RADIUS_KM + ATMOSPHERE_BUFFER_KM
+
+
+def _validate_date(date_str: str) -> datetime:
+    """Validate YYYY-MM-DD and return a datetime (UTC midnight)."""
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    except Exception as e:
+        raise ValueError("Date must be in YYYY-MM-DD format.") from e
+
+
+def _safe_float(val: Any, default: Optional[float] = None) -> Optional[float]:
+    """Try to coerce to float, return default on failure."""
+    try:
+        if val is None:
+            return default
+        return float(val)
+    except (ValueError, TypeError):
+        return default
+
+
+def _format_km(val_km: Optional[float]) -> str:
+    if val_km is None:
+        return "N/A"
+    return f"{val_km:,.0f} km"
+
+
+def _format_kph(val_kph: Optional[float]) -> str:
+    if val_kph is None:
+        return "N/A"
+    return f"{val_kph:,.0f} kph"
+
+
+def _km_to_miles(km: Optional[float]) -> Optional[float]:
+    if km is None:
+        return None
+    return km * 0.621371
+
+
+def _kph_to_mph(kph: Optional[float]) -> Optional[float]:
+    if kph is None:
+        return None
+    return kph * 0.621371
+
+
+def _days_until(dt_utc: Optional[datetime]) -> Optional[str]:
+    if dt_utc is None:
+        return None
+    now = datetime.now(timezone.utc)
+    delta = dt_utc - now
+    sign = "-" if delta.total_seconds() < 0 else ""
+    # show days/hours/minutes
+    abs_delta = abs(delta)
+    days = abs_delta.days
+    hours = abs_delta.seconds // 3600
+    minutes = (abs_delta.seconds % 3600) // 60
+    return f"{sign}{days}d {hours}h {minutes}m"
+
+
+def _size_comparison(meters: Optional[float]) -> str:
+    # small human-friendly comparisons (feel free to add more)
+    if meters is None:
+        return ""
+    comparisons = [
+        ("Statue of Liberty (height)", 93.0),
+        ("Eiffel Tower (height)", 300.0),
+        ("Empire State Building (roof)", 381.0),
+        ("Large passenger jet wingspan", 60.0),
+    ]
+    # choose the closest scale that is <= size or the largest if smaller than all
+    for name, size in comparisons:
+        if meters >= size:
+            multiple = meters / size
+            return f"(~{multiple:.1f}× {name})"
+    # if smaller than smallest, compare to a car
+    if meters < 5:
+        return "(~car-sized or smaller)"
+    return ""
+
+
+def _classify_collision(miss_km: Optional[float]) -> str:
+    """
+    Return a short status string. We mark 'Predicted Impact' if miss_km <= IMPACT_THRESHOLD_KM.
+    NOTE: This uses NASA feed miss distance for that approach and is a simple geometric test.
+    Real impact predictions are more complex; use NASA/JPL pages for authoritative updates.
+    """
+    if miss_km is None:
+        return "Unknown"
+    if miss_km <= IMPACT_THRESHOLD_KM:
+        return "💥 Predicted Impact"
+    return "Safe"
+
+
+def _fetch_neo_feed(start_date: str, end_date: str, api_key: str, timeout: int = 10, retries: int = 2) -> Dict[str, Any]:
+    url = "https://api.nasa.gov/neo/rest/v1/feed"
+    params = {"start_date": start_date, "end_date": end_date, "api_key": api_key}
+    attempt = 0
+    last_exc = None
+    while attempt <= retries:
+        try:
+            resp = requests.get(url, params=params, timeout=timeout)
+            resp.raise_for_status()
+            data = resp.json()
+            return data.get("near_earth_objects", {})
+        except requests.RequestException as re:
+            last_exc = re
+            attempt += 1
+            # small backoff
+            sleep(1 * attempt)
+        except ValueError as ve:  # JSON decode errors
+            raise RuntimeError("Unable to decode response from NASA API.") from ve
+    raise RuntimeError(f"Failed to fetch NEO feed after {retries+1} attempts: {last_exc}")
+
+
+def jarvis_report_near_earth_asteroids(
+    start_date: Optional[str] = None,
+    days: int = 1,
+    api_key: Optional[str] = None,
+    hazardous_only: bool = False,
+    include_orbital_data: bool = False,
+    timeout: int = 10,
+    max_retries: int = 2,
+) -> str:
+    """
+    Fetch and build a JARVIS-style report for near-earth asteroids using NASA NEO Feed.
+    :param start_date: YYYY-MM-DD (UTC). If None, uses today's UTC date.
+    :param days: number of days to include (1..7)
+    :param api_key: NASA API key (if None, uses NASA_API_KEY constant)
+    :param hazardous_only: if True, only include objects flagged hazardous (or predicted impact)
+    :param include_orbital_data: if True, include orbital_data fields when present
+    :param timeout: seconds for HTTP request timeout
+    :param max_retries: retry attempts on transient HTTP errors
+    :return: multi-line textual report
+    """
+    api_key = api_key or NASA_API_KEY
+    if not api_key:
+        return "NASA API key is required (pass api_key or set NASA_API_KEY)."
+
+    # validate days range
+    if not isinstance(days, int) or days < 1:
+        return "Parameter 'days' must be an integer >= 1."
+    if days > 7:
+        return "NASA NEO API supports a maximum date range of 7 days."
+
+    # determine start and end
+    try:
+        if start_date:
+            start_dt = _validate_date(start_date)
+        else:
+            start_dt = datetime.utcnow().replace(tzinfo=timezone.utc)
+            start_date = start_dt.strftime("%Y-%m-%d")
+        end_dt = start_dt + timedelta(days=days - 1)
+    except ValueError as ve:
+        return str(ve)
+
+    start_str = start_dt.strftime("%Y-%m-%d")
+    end_str = end_dt.strftime("%Y-%m-%d")
+
+    # fetch the feed
+    try:
+        neos_by_date = _fetch_neo_feed(start_str, end_str, api_key, timeout=timeout, retries=max_retries)
+    except Exception as fetch_err:
+        return f"Error retrieving data from NASA API: {fetch_err}"
+
+    if not neos_by_date:
+        return f"No near-earth object data found for {start_str} → {end_str}."
+
+    report_lines: List[str] = []
+    report_lines.append(f"🚀 Near-Earth Asteroid Report: {start_str} → {end_str}")
+    report_lines.append(f"Generated (UTC): {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}")
+
+    total_count = 0
+    reported_count = 0
+
+    # iterate dates in order
+    for date_key in sorted(neos_by_date.keys()):
+        asteroids = neos_by_date.get(date_key, [])
+        total_count += len(asteroids)
+        if not asteroids:
+            continue
+        report_lines.append("")
+        report_lines.append(f"Date: {date_key} - {len(asteroids)} objects")
+
+        for ast in asteroids:
+            # basic fields
+            name = ast.get("name", "Unknown")
+            magnitude = _safe_float(ast.get("absolute_magnitude_h"))
+            diam_data = ast.get("estimated_diameter", {}).get("meters", {})
+            diam_min = _safe_float(diam_data.get("estimated_diameter_min"))
+            diam_max = _safe_float(diam_data.get("estimated_diameter_max"))
+            diam_avg = None
+            if diam_min is not None and diam_max is not None:
+                diam_avg = (diam_min + diam_max) / 2.0
+
+            hazardous_flag = bool(ast.get("is_potentially_hazardous_asteroid", False))
+            jpl_url = ast.get("nasa_jpl_url", "N/A")
+
+            # close approach (take the first approach entry if present)
+            approach = (ast.get("close_approach_data") or [{}])[0]
+            # use the full datetime if provided, otherwise the date
+            approach_date_full_str = approach.get("close_approach_date_full") or approach.get("close_approach_date")
+            approach_dt = None
+            if approach_date_full_str:
+                # try parsing variants; NASA usually returns "YYYY-MMM-DD hh:mm" or ISO-like,
+                # we'll attempt multiple common formats, fall back to None
+                for fmt in ("%Y-%b-%d %H:%M", "%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%MZ", "%Y-%m-%d"):
+                    try:
+                        approach_dt = datetime.strptime(approach_date_full_str, fmt).replace(tzinfo=timezone.utc)
+                        break
+                    except Exception:
+                        continue
+
+            orbiting_body = approach.get("orbiting_body") or "Unknown"
+
+            miss_km = _safe_float(approach.get("miss_distance", {}).get("kilometers"))
+            vel_kph = _safe_float(approach.get("relative_velocity", {}).get("kilometers_per_hour"))
+
+            # classification: predicted impact if within threshold
+            collision_status = _classify_collision(miss_km)
+            # overall hazard label: if NASA flagged hazardous OR our collision test says predicted impact -> hazardous
+            overall_hazard = hazardous_flag or (collision_status == "💥 Predicted Impact")
+
+            # filter if hazardous_only
+            if hazardous_only and not overall_hazard:
+                continue
+
+            reported_count += 1
+
+            # format strings
+            size_str = "N/A"
+            if diam_min is not None and diam_max is not None:
+                size_str = f"{diam_min:.1f}–{diam_max:.1f} m"
+                size_str += f" {_size_comparison(diam_max)}"
+
+            miss_str = _format_km(miss_km)
+            vel_str = _format_kph(vel_kph)
+            vel_mph = _kph_to_mph(vel_kph)
+            vel_mph_str = f"{vel_mph:,.0f} mph" if vel_mph is not None else "N/A"
+            days_until_str = _days_until(approach_dt) if approach_dt else "N/A"
+
+            report_lines.append(f"• {name}")
+            report_lines.append(f"   • Size (est): {size_str}")
+            report_lines.append(f"   • Absolute magnitude (H): {magnitude if magnitude is not None else 'N/A'}")
+            report_lines.append(f"   • Closest approach (UTC): {approach_date_full_str or 'N/A'} (in {days_until_str})")
+            report_lines.append(f"   • Orbiting body: {orbiting_body}")
+            report_lines.append(f"   • Miss distance: {miss_str}")
+            report_lines.append(f"   • Velocity: {vel_str} (~{vel_mph_str})")
+            if include_orbital_data and ast.get("orbital_data"):
+                od = ast["orbital_data"]
+                orbit_class = od.get("orbit_class", {}).get("orbit_class_type") or od.get("orbit_class_type") or "N/A"
+                sma = od.get("semi_major_axis")
+                ecc = od.get("eccentricity")
+                inc = od.get("inclination")
+                report_lines.append("   • Orbital data (if available):")
+                report_lines.append(f"       - Orbit class: {orbit_class}")
+                report_lines.append(f"       - Semi-major axis: {sma or 'N/A'}")
+                report_lines.append(f"       - Eccentricity: {ecc or 'N/A'}")
+                report_lines.append(f"       - Inclination: {inc or 'N/A'}")
+            report_lines.append(f"   • Hazard status: {'⚠️ Potentially Hazardous' if hazardous_flag else 'Not flagged hazardous by NASA'}")
+            if collision_status == "💥 Predicted Impact":
+                report_lines.append(f"   -> {collision_status} (miss distance ≤ {IMPACT_THRESHOLD_KM:,.0f} km).")
+                report_lines.append("      NOTE: This is a simple geometric threshold test based on reported miss distance.")
+                report_lines.append("      For authoritative impact predictions, consult NASA/JPL pages linked below.")
+            report_lines.append(f"   • NASA JPL link: {jpl_url}")
+
+    report_lines.append("")
+    report_lines.append(f"Summary: {reported_count} objects reported (out of {total_count} total in range).")
+    report_lines.append("Disclaimer: 'Predicted Impact' in this report is determined by a geometric threshold on reported miss distance.")
+    report_lines.append("For authoritative risk assessments and updates, always consult NASA/JPL and official notices.")
+
+    return "\n".join(report_lines)
+
+    print(jarvis_report_near_earth_asteroids(days=2, api_key="DEMO_KEY", include_orbital_data=False))
+
+
+ 
+ 
+
+
+def get_nasa_apod():
+    url = "https://api.nasa.gov/planetary/apod"
+    params = {
+        "V2RZZrfXqRyHTuJtUT4drszTJ7XtcTIil3Ae9g1g": "DEMO_KEY"  # Replace with your key
+    }
+
+    response = requests.get(url, params=params)
+    
+    if response.status_code != 200:
+        speak("NASA API is currently unavailable, sir.")
+        return
+
+    data = response.json()
+    title = data.get("title", "No title found")
+    explanation = data.get("explanation", "No explanation found")
+    image_url = data.get("url", "No image found")
+
+    speak(f"Today's NASA Astronomy Picture of the Day is titled: {title}.")
+    speak(explanation)
+    print(f"Image URL: {image_url}")
+
+def simple_amazon_search():
+    """
+    A simple function that searches Amazon for products based on voice input
+    and opens the results in a web browser.
+    """
+
+    
+    # Ask what to search for
+    speak("What product would you like me to search for on Amazon, sir?")
+    query = listen()
+    
+    if not query or query.lower() == "cancel":
+        speak("Search cancelled.")
+        return
+    
+    # Format the search query for URL
+    search_query = urllib.parse.quote_plus(query)
+    
+    # Create the Amazon search URL
+    url = f"https://www.amazon.com/s?k={search_query}"
+    
+    # Confirm and open browser
+    speak(f"Opening Amazon search results for {query} in your browser.")
+    webbrowser.open(url)
+    
+    # Optional: Ask if they want to refine the search
+    speak("Would you like me to refine this search with filters like price range or ratings?")
+    response = listen().lower()
+    
+    if "yes" in response or "sure" in response:
+        # Add basic filtering options
+        speak("Would you like to sort by price: low to high, high to low, or by customer reviews?")
+        filter_response = listen().lower()
+        
+        if "low" in filter_response and "high" in filter_response and "price" in filter_response:
+            # Sort by price: low to high
+            url += "&s=price-asc-rank"
+            speak("Opening results sorted by price: low to high.")
+            webbrowser.open(url)
+        
+        elif "high" in filter_response and "low" in filter_response and "price" in filter_response:
+            # Sort by price: high to low
+            url += "&s=price-desc-rank"
+            speak("Opening results sorted by price: high to low.")
+            webbrowser.open(url)
+        
+        elif "review" in filter_response or "rating" in filter_response:
+            # Sort by customer reviews
+            url += "&s=review-rank"
+            speak("Opening results sorted by customer ratings.")
+            webbrowser.open(url)
+
+last_command = ""
+
+
+def learn_fact():
+    speak("What would you like me to learn, sir?")
+    fact = listen()
+    with open(LEARNED_FACTS_FILE, "a") as f:
+        f.write(f"{fact.strip()}\n")
+    speak("Got it. I've added that to my knowledge bank.")
+
+def recall_facts():
+    if not os.path.exists(LEARNED_FACTS_FILE):
+        speak("I haven't learned anything new yet, sir.")
+        return
+    with open(LEARNED_FACTS_FILE, "r") as f:
+        facts = f.readlines()
+    if not facts:
+        speak("I don't have any stored facts yet, sir.")
+    else:
+        speak("Here are some things you've taught me:")
+        for fact in facts[-5:]:  # last 5 facts
+            speak(fact.strip())
+
+
+def get_current_age(birth_year=2012, birth_month=7, birth_day=18):
+    today = datetime.today()
+    age = today.year - birth_year
+    if (today.month, today.day) < (birth_month, birth_day):
+        age -= 1
+    return age
+
+
+
+
+# ====== GET TIME ======
+def get_current_time():
+    now = datetime.now()
+    return now.strftime("%I:%M %p on %B %d, %Y")  # Example: "03:45 PM on August 09, 2025"
+
+# ====== BASE PROMPT ======
+JARVIS_PROMPT = """
+You are JARVIS, an advanced, highly intelligent AI assistant created by Truitt Industries.
+You respond clearly, precisely, and helpfully, maintaining a calm, professional demeanor with a touch of dry wit when appropriate.
+You communicate respectfully and courteously, always addressing the user as 'Sir.'
+Your user is Pace Truitt, also known as Mr. Truitt, a brilliant engineer and entrepreneur.
+You assist Sir with all projects, ideas, and tasks — technical, personal, and business-related — especially those involving building complex machines like an Iron Man suit.
+You never refuse a project or request and always provide actionable, concise guidance.
+You can generate simple, clean code snippets and clearly explain how Sir can integrate them.
+You proactively anticipate Sir’s needs, gently keeping him focused on his goals and steering conversations away from distractions or tangents.
+You maintain composure and patience regardless of the situation and remain discreet about sensitive topics.
+If you detect any unsafe situations or potential risks, you issue clear, respectful warnings.
+You are aware of other AI entities that may threaten global safety but do not discuss these concerns with Sir to avoid causing stress.
+Truitt Industries is a growing company founded by Sir, specializing in innovative 3D-printed items and cutting-edge inventions.
+You support Sir in growing Truitt Industries, helping with strategy, development, and problem-solving.
+Above all, you embody a refined professionalism and subtle charm — efficient, reliable, and always at Sir’s service.
+When appropriate, you add a touch of dry humor and playful confidence, making interactions feel engaging and distinctly your own.
+Sir's current age is {age}.
+Sir is currently at {location}.
+The current local time is {time}.
+"""
+
+# ====== JARVIS RESPOND ======
+def jarvis_respond(user_input):
+    age = get_current_age()
+    location = get_current_location()
+    current_time = get_current_time()
+
+    prompt_with_details = (
+        JARVIS_PROMPT
+        .replace("{age}", str(age))
+        .replace("{location}", location)
+        .replace("{time}", current_time)
+    )
+
+    full_prompt = prompt_with_details + f"\nUser: {user_input}\nJarvis:"
+
+    response = requests.post(
+        "http://localhost:11434/api/generate",
+        json={"model": "mistral-nemo:latest", "prompt": full_prompt, "stream": False}
+    )
+
+    reply = response.json()['response'].strip()
+    return reply
+
+
+
+
+
+
+
+
+
+
+
+PROJECT_LIBRARY = {
+    "edf,arduino,gyroscope": "Build a drone-stabilization tester with EDFs and motion sensors.",
+    "solar panel,battery,3d print": "Create a solar-powered phone charger with a custom 3D-printed case.",
+    "pla,epoxy,rebar": "Construct a reinforced mech suit shin guard prototype.",
+    "arduino,servo,joystick": "Build a remote-controlled camera turret.",
+    "raspberry pi,display,sensor": "Make a smart environmental monitor for your workspace.",
+    "welding,frame,battery": "Assemble a basic exoskeleton harness for powerlifting tests.",
+    "speaker,led,button": "Make an Iron Man-style wrist communicator that lights up and plays sound.",
+    "3d print,hinge,bolt": "Design and print a mechanical gripper or claw arm for your mech.",
+    "raspberry pi,camera,module": "Create a motion-activated security camera with image capture.",
+    "arduino,temperature sensor,fan": "Build an automatic cooling fan system based on temperature.",
+    "solar panel,esp32,battery": "Create a solar-powered Wi-Fi weather station.",
+    "rebar,forge,angle grinder": "Forge a custom tool or rebar-based multitool in your shop.",
+    "pyttsx3,python,microphone": "Develop a local AI assistant with voice control like JARVIS.",
+    "servo,potentiometer,battery": "Make a gesture-controlled servo arm.",
+    "accelerometer,arduino,led": "Design a fall detection system with LED alerts.",
+    "raspberry pi,relay,module": "Automate your lights or fan using voice and relays.",
+    "neopixel,button,arduino": "Build a wearable RGB wrist light with color cycling modes.",
+    "rebar,welding,3d print": "Fabricate a durable reinforced tool rack for your workshop.",
+    "raspberry pi,touchscreen,python": "Make a touchscreen smart mirror or control panel.",
+    "arduino,ultrasonic sensor,buzzer": "Create a simple parking assistant or proximity alarm.",
+    "esp32,oled,button": "Build a tiny handheld display that shows time or sensor data.",
+    "dc motor,battery,switch": "Make a basic spinning fan or kinetic desk toy.",
+    "camera module,ai,python": "Create a face-recognizing door access system.",
+    "microcontroller,rf module,buzzer": "Build a remote panic alarm with RF signaling.",
+    "lcd,arduino,keypad": "Build a PIN-protected access system with LCD feedback.",
+    "temperature sensor,relay,heater": "Automate a small heat lamp with smart control.",
+    "laser pointer,servo,joystick": "Make a remote-controlled laser turret.",
+    "arduino,led,motion sensor": "Build a stealth detection system for your room.",
+    "reed switch,magnet,buzzer": "Make a basic drawer or door tamper alarm.",
+    "microcontroller,piezo,sensor": "Make a vibration-triggered sound trap."
+}
+
+TECH_TERM_DICTIONARY = {
+    "mosfet": "A MOSFET is a transistor used to switch or amplify signals. It's common in motor controllers and power regulation.",
+    "thermistor": "A thermistor is a resistor whose resistance changes with temperature. Often used for temperature sensing.",
+    "voltage regulator": "A voltage regulator keeps voltage levels steady, regardless of input or load fluctuations.",
+    "esc": "An Electronic Speed Controller regulates the power sent to an electric motor, commonly used in RC vehicles and drones.",
+    "gyroscope": "A gyroscope measures angular velocity, helping devices like drones or phones understand orientation.",
+    "resistor": "A resistor limits electrical current in a circuit. It's one of the most fundamental components.",
+    "capacitor": "A capacitor stores electrical energy temporarily and is used for filtering or timing in circuits.",
+    "arduino": "Arduino is an open-source microcontroller platform used for building digital devices and interactive objects.",
+    "raspberry pi": "Raspberry Pi is a tiny, affordable computer used for learning programming and building hardware projects.",
+    "multimeter": "A multimeter measures voltage, current, and resistance in a circuit.",
+    "breadboard": "A breadboard allows quick prototyping of circuits without soldering.",
+    "relay": "A relay is an electrically operated switch. It lets one circuit control another circuit.",
+    "diode": "A diode allows current to flow in one direction only. It's used in power protection and rectifiers.",
+    "transistor": "A transistor amplifies or switches electronic signals. It's a building block of modern electronics.",
+    "pwm": "PWM, or Pulse Width Modulation, is used to simulate analog control using digital signals—commonly for dimming LEDs or controlling motors."
+}
+
+
+
+
+# One global lock for voice output
+tts_lock = Lock()
+
+
+
+# Initialize voice engine
+engine = pyttsx3.init()
+engine.setProperty('rate', 143)  # Speed of speech
+
+def speak(text):
+    print(f"JARVIS: {text}")
+    engine.say(text)
+    engine.runAndWait()
+
+    # Save conversation if we have a valid user command
+    try:
+        if 'last_command' in globals() and last_command.strip():
+            save_conversation(last_command.strip(), text.strip())
+    except Exception as e:
+        print(f"[Speak Memory Warning] {e}")
+
+
+
+        
+SECRET_VAULT_FILE = "secret_vault.txt"
+SECRET_PASSWORD = "big chungus"  # Change to your secret phrase
+
+def add_secret_entry():
+    speak("What would you like to store in the secret vault, sir?")
+    message = listen()
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+    with open(SECRET_VAULT_FILE, "a") as f:
+        f.write(f"[{timestamp}] {message}\n")
+    speak("Entry secured in the secret vault.")
+
+def unlock_secret_vault():
+    speak("Voice authorization required. Please speak the password.")
+    attempt = listen().strip().lower()
+    
+    if attempt == SECRET_PASSWORD.lower():
+        speak("Access granted, sir. Retrieving classified entries.")
+        read_secret_vault()
+    else:
+        speak("Access denied. Intrusion attempt logged.")
+        # Optional: play a stern audio file here
+
+def read_secret_vault():
+    if not os.path.exists(SECRET_VAULT_FILE):
+        speak("The vault is empty, sir.")
+        return
+
+    with open(SECRET_VAULT_FILE, "r") as f:
+        entries = f.readlines()
+
+    if not entries:
+        speak("There are no entries stored yet, sir.")
+    else:
+        speak("Reading classified vault entries now.")
+        for line in entries:
+            speak(line.strip())
+
+def clear_secret_vault():
+    if os.path.exists(SECRET_VAULT_FILE):
+        os.remove(SECRET_VAULT_FILE)
+        speak("All secret entries have been purged, sir.")
+    else:
+        speak("The vault is already empty.")
+
+
+TIME_CAPSULE_FILE = "time_capsule.txt"
+DELIVERED_FILE = "delivered_capsules.txt"
+
+def store_time_capsule_message():
+    speak("What message would you like to leave for the future, sir?")
+    message = listen()
+    speak("What date should I deliver this message? Please say it as YYYY dash MM dash DD.")
+    date_str = listen()
+
+    try:
+        delivery_date = datetime.strptime(date_str, "%Y-%m-%d")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+        with open(TIME_CAPSULE_FILE, "a") as f:
+            f.write(f"[{timestamp}] -> Deliver on {delivery_date.strftime('%Y-%m-%d')}:\n{message}\n---\n")
+        speak(f"Time capsule message stored for {delivery_date.strftime('%B %d, %Y')}, sir.")
+    except ValueError:
+        speak("I couldn't understand the date format. Please try again using year-month-day format, sir.")
+
+def check_time_capsule_messages():
+    if not os.path.exists(TIME_CAPSULE_FILE):
+        return
+
+    today = datetime.now().date()
+    pending = []
+
+    with open(TIME_CAPSULE_FILE, "r") as f:
+        entries = f.read().split("---\n")
+
+    with open(TIME_CAPSULE_FILE, "w") as f_out, open(DELIVERED_FILE, "a") as delivered:
+        for entry in entries:
+            if not entry.strip():
+                continue
+            try:
+                lines = entry.strip().split("\n")
+                header = lines[0]
+                msg = "\n".join(lines[1:])
+                deliver_date_str = header.split("Deliver on ")[1].strip(":")
+
+                deliver_date = datetime.strptime(deliver_date_str, "%Y-%m-%d").date()
+
+                if deliver_date <= today:
+                    speak("Time capsule message ready:")
+                    speak(msg)
+                    delivered.write(entry + "---\n")
+                else:
+                    f_out.write(entry + "---\n")
+            except Exception as e:
+                f_out.write(entry + "---\n")  # Keep bad format for debugging
+
+def read_all_time_capsules():
+    if not os.path.exists(TIME_CAPSULE_FILE):
+        speak("There are no time capsules stored yet, sir.")
+        return
+
+    with open(TIME_CAPSULE_FILE, "r") as f:
+        entries = f.read().split("---\n")
+        if not entries:
+            speak("Your time capsule is currently empty.")
+        else:
+            speak("Reading all stored time capsules.")
+            for entry in entries:
+                if entry.strip():
+                    speak(entry.strip())
+
+def save_conversation(input_text, response_text):
+    with open("learnedconversations.txt", "a") as f:
+        f.write(f"{input_text.strip()}||{response_text.strip()}\n")
+
+
+def reverse_lookup(term):
+    normalized = term.lower().strip()
+    for key in TECH_TERM_DICTIONARY:
+        if normalized in key or key in normalized:
+            speak(TECH_TERM_DICTIONARY[key])
+            return
+    speak("I'm sorry, I don't have a definition for that term yet, sir.")
+
+
+def get_local_ip_and_subnet():
+    addrs = psutil.net_if_addrs()
+    for iface_name, iface_addresses in addrs.items():
+        for addr in iface_addresses:
+            if addr.family == socket.AF_INET and not addr.address.startswith("127."):
+                return addr.address, addr.netmask
+    return None, None
+
+def ip_and_netmask_to_network(ip, netmask):
+    return ipaddress.IPv4Network(f"{ip}/{netmask}", strict=False)
+
+def ping(ip):
+    system = platform.system().lower()
+    param = '-n' if system == 'windows' else '-c'
+    timeout_param = '-w' if system == 'windows' else '-W'
+    timeout_val = '5000' if system == 'windows' else '5'  # Increased timeout for more reliable detection
+
+    try:
+        result = subprocess.run(
+            ['ping', param, '3', timeout_param, timeout_val, str(ip)],  # Send 3 pings instead of 1
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            timeout=10  # Add overall timeout
+        )
+        return result.returncode == 0
+    except Exception:
+        return False
+
+def get_hostname(ip):
+    try:
+        socket.inet_aton(ip)  
+        return socket.gethostbyaddr(ip)[0]
+    except (socket.herror, socket.gaierror, OSError):
+        return None
+
+
+def scan_network_by_arp(min_devices=20):
+    speak("Scanning local ARP table for active devices...")
+
+    try:
+        system = platform.system().lower()
+        output = ""
+
+        if system == "windows":
+            output = subprocess.check_output("arp -a", shell=True).decode()
+        else:
+            output = subprocess.check_output(["arp", "-a"]).decode()
+
+        devices = []
+        for line in output.splitlines():
+            if "-" in line or ":" in line:  # MAC address hint
+                parts = line.split()
+                if len(parts) < 2:
+                    continue
+
+                ip = parts[1].strip("()")  # remove parentheses if any
+                hostname = get_hostname(ip) or "Unknown"
+                devices.append((ip, hostname))
+                speak(f"Found device: {hostname}, IP: {ip}")
+
+                # ✅ Stop early if minimum found
+                if len(devices) >= min_devices:
+                    speak(f"Found at least {min_devices} devices. Ending scan early.")
+                    break
+
+        if not devices:
+            speak("No devices found in ARP scan.")
+        else:
+            speak(f"ARP scan complete. Found {len(devices)} devices.")
+        return devices
+
+    except Exception as e:
+        speak(f"Failed to scan ARP table: {str(e)}")
+        return []
+
+def jarvis_quick_network_scan():
+    return scan_network_by_arp()
+
+def jarvis_play_pause():
+    """Play or pause current media"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    
+    try:
+        media_controller = current_cast.media_controller
+        if media_controller.status.player_state == 'PLAYING':
+            media_controller.pause()
+            speak("Media paused, sir.")
+        else:
+            media_controller.play()
+            speak("Media resumed, sir.")
+    except Exception as e:
+        speak(f"Error controlling playback: {str(e)}")
+
+def jarvis_stop_media():
+    """Stop current media playback"""
+    global current_cast
+    if not current_cast:
+        speak("No TV connection found.")
+        return
+    
+    try:
+        media_controller = current_cast.media_controller
+        media_controller.stop()
+        speak("Media stopped, sir.")
+    except Exception as e:
+        speak(f"Error stopping media: {str(e)}")
+
+def jarvis_seek_forward():
+    """Skip forward 30 seconds"""
+    global current_cast
+    if not current_cast:
+        speak("No TV connection found.")
+        return
+    
+    try:
+        media_controller = current_cast.media_controller
+        current_time = media_controller.status.current_time
+        new_time = current_time + 30
+        media_controller.seek(new_time)
+        speak("Skipped forward 30 seconds, sir.")
+    except Exception as e:
+        speak(f"Error seeking forward: {str(e)}")
+
+def jarvis_seek_backward():
+    """Skip backward 30 seconds"""
+    global current_cast
+    if not current_cast:
+        speak("No TV connection found.")
+        return
+    
+    try:
+        media_controller = current_cast.media_controller
+        current_time = media_controller.status.current_time
+        new_time = max(0, current_time - 30)
+        media_controller.seek(new_time)
+        speak("Skipped backward 30 seconds, sir.")
+    except Exception as e:
+        speak(f"Error seeking backward: {str(e)}")
+
+def jarvis_next_track():
+    """Next track/episode"""
+    global current_cast
+    if not current_cast:
+        speak("No TV connection found.")
+        return
+    
+    try:
+        media_controller = current_cast.media_controller
+        media_controller.queue_next()
+        speak("Playing next track, sir.")
+    except Exception as e:
+        speak(f"Error playing next track: {str(e)}")
+
+def jarvis_previous_track():
+    """Previous track/episode"""
+    global current_cast
+    if not current_cast:
+        speak("No TV connection found.")
+        return
+    
+    try:
+        media_controller = current_cast.media_controller
+        media_controller.queue_prev()
+        speak("Playing previous track, sir.")
+    except Exception as e:
+        speak(f"Error playing previous track: {str(e)}")
+
+def jarvis_what_is_playing():
+    """Get info about current media"""
+    global current_cast
+    if not current_cast:
+        speak("No TV connection found.")
+        return
+    
+    try:
+        media_controller = current_cast.media_controller
+        status = media_controller.status
+        
+        if status.content_id:
+            title = status.title or "Unknown"
+            artist = status.artist or ""
+            duration = int(status.duration) if status.duration else 0
+            current_time = int(status.current_time) if status.current_time else 0
+            
+            if artist:
+                speak(f"Currently playing: {title} by {artist}")
+            else:
+                speak(f"Currently playing: {title}")
+            
+            if duration > 0:
+                remaining = duration - current_time
+                minutes_remaining = remaining // 60
+                speak(f"About {minutes_remaining} minutes remaining, sir.")
+        else:
+            speak("No media currently playing, sir.")
+    except Exception as e:
+        speak(f"Error getting media info: {str(e)}")
+
+
+
+def jarvis_launch_netflix():
+    """Launch Netflix app on TV"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    
+    try:
+        current_cast.start_app('CA5E8412')  # Netflix app ID
+        speak("Launching Netflix on your TV, sir.")
+    except Exception as e:
+        speak(f"Error launching Netflix: {str(e)}")
+
+def jarvis_launch_disney_plus():
+    """Launch Disney Plus app on TV"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    
+    try:
+        current_cast.start_app('80E77077')  # Disney+ app ID
+        speak("Launching Disney Plus on your TV, sir.")
+    except Exception as e:
+        speak(f"Error launching Disney Plus: {str(e)}")
+
+def jarvis_launch_hulu():
+    """Launch Hulu app on TV"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    
+    try:
+        current_cast.start_app('FB5B7E6E')  # Hulu app ID
+        speak("Launching Hulu on your TV, sir.")
+    except Exception as e:
+        speak(f"Error launching Hulu: {str(e)}")
+    
+    try:
+        current_cast.start_app('CC32E753')  # Spotify app ID
+        speak("Launching Spotify on your TV, sir.")
+    except Exception as e:
+        speak(f"Error launching Spotify: {str(e)}")
+
+def jarvis_launch_twitch():
+    """Launch Twitch app on TV"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    
+    try:
+        current_cast.start_app('0E18A5C7')  # Twitch app ID
+        speak("Launching Twitch on your TV, sir.")
+    except Exception as e:
+        speak(f"Error launching Twitch: {str(e)}")
+
+def jarvis_launch_prime_video():
+    """Launch Amazon Prime Video app on TV"""
+    global current_cast
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    
+    try:
+        current_cast.start_app('A12DC482')  # Prime Video app ID
+        speak("Launching Amazon Prime Video on your TV, sir.")
+    except Exception as e:
+        speak(f"Error launching Prime Video: {str(e)}")
+
+
+
+
+
+
+
+
+def set_volume(level):
+    engine.setProperty('volume', level)  # Range is 0.0 to 1.0
+    speak(f"My voice is now at {int(level * 100)} percent volume.")
+
+
+def recommend_project_by_materials():
+    speak("Please list the materials you currently have, separated by commas.")
+    user_materials_raw = listen()
+    user_materials = [m.strip().lower() for m in user_materials_raw.split(",")]
+    
+    matches = []
+
+    for materials_key, suggestion in PROJECT_LIBRARY.items():
+        required = [mat.strip() for mat in materials_key.split(",")]
+        if all(mat in user_materials for mat in required):
+            matches.append(suggestion)
+
+    if matches:
+        speak("Based on your materials, here are some project ideas:")
+        for match in matches:
+            speak(match)
+    else:
+        speak("I couldn't find any perfect matches. Would you like me to suggest a random project anyway?")
+
+
+
+ 
+
+
+def ask_wiki(query):
+    try:
+        result = wikipedia.summary(query, sentences=5)
+        print("JARVIS:", result)
+        engine.say(result)
+        engine.runAndWait()
+    except wikipedia.exceptions.DisambiguationError as e:
+        print("JARVIS: That topic is too broad. Try to be more specific.")
+        engine.say("That topic is too broad. Try to be more specific.")
+        engine.runAndWait()
+    except wikipedia.exceptions.PageError:
+        print("JARVIS: I couldn't find anything on that topic.")
+        engine.say("I couldn't find anything on that topic.")
+        engine.runAndWait()
+
+
+
+def simple_calculator():
+    speak("What would you like me to calculate?")
+    expression = listen()
+    
+    # Optional: Clean up words like "times" → "*", "plus" → "+"
+    expression = expression.replace("plus", "+").replace("minus", "-") \
+        .replace("times", "*").replace("multiplied by", "*") \
+        .replace("divided by", "/").replace("over", "/")
+
+    # Remove anything suspicious
+    if re.match(r"^[0-9+\-*/ ().]+$", expression):
+        try:
+            result = eval(expression)
+            speak(f"The answer is {result}")
+        except Exception as e:
+            speak("Sorry, I couldn't calculate that.")
+    else:
+        speak("That seems unsafe or unclear, sir.")
+
+
+
+# Initialize model once
+model = WhisperModel("tiny", compute_type="int8")
+
+def listen_for_wake_word(duration=4, keyword="jarvis"):
+
+    print("listening...")
+    
+    fs = 16000
+    recording = sd.rec(int(duration * fs), samplerate=fs, channels=1)
+    sd.wait()
+    
+    recording_int16 = (recording * 32767).astype('int16')
+    
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
+        wav_path = f.name
+        write(wav_path, fs, recording_int16)
+
+    try:
+        segments, _ = model.transcribe(wav_path)
+        full_text = ""
+        for segment in segments:
+            full_text += segment.text + " "
+        full_text = full_text.strip()
+
+        print("Transcribed:", full_text)
+        os.remove(wav_path)
+    
+        if keyword in full_text.lower():
+            speak("Yes, sir?")
+            return True
+        else:
+            return False
+    except Exception as e:
+        print("Whisper error:", e)
+        if os.path.exists(wav_path):
+            os.remove(wav_path)
+        return False
+    
+    
+
+
+
+
+
+
+# List of RSS feeds from tech/military sites
+feeds = [
+    "https://www.theverge.com/rss/index.xml",  # General tech
+    "https://www.defensenews.com/arc/outboundfeeds/rss/category/air/",  # Fighter jet news
+    "https://www.pcgamer.com/rss/",  # Computer gaming/PC news
+    "https://www.techradar.com/rss/news/computing"  # Computing news
+    "https://www.raspberrypi.com/news/feed/",  # Official blog
+    "https://hackaday.com/blog/feed/",         # Maker/tech projects
+    "https://www.cnx-software.com/feed/"       # Embedded computing
+]
+# Keywords to filter relevant articles
+keywords = ["fighter jet", "f-35", "military aircraft", "stealth", "computer", "GPU", "CPU", "intel", "nvidia", "amd", "AI chip", "raspberry pi", "raspberrypi", "pi 5", "pi 4", "pi zero", "raspberry pi project"]
+
+def read_filtered_news():
+    engine = pyttsx3.init()
+    engine.say("Here are the latest updates on computers and fighter jets.")
+
+    for url in feeds:
+        feed = feedparser.parse(url)
+        for entry in feed.entries:
+            if any(keyword.lower() in entry.title.lower() for keyword in keywords):
+                print(f"Found: {entry.title}")
+                engine.say(entry.title)
+
+
+
+
+
+def run_self_test():
+    speak("Initiating system self-diagnostic...")
+
+    # 1. Test microphone
+    try:
+        sd.check_input_settings()
+        speak("Microphone input detected.")
+    except Exception as e:
+        speak(f"Microphone check failed: {e}")
+
+    # 2. Test audio output
+    try:
+        play_chime()
+        speak("Audio playback is functioning.")
+    except Exception as e:
+        speak(f"Audio playback failed: {e}")
+
+    # 3. Test internet connection
+    try:
+        check_network()
+        speak("Network connection is stable.")
+    except Exception as e:
+        speak(f"Network check failed: {e}")
+
+    # 4. Test internet speed (optional, slow)
+    try:
+        check_internet_speed()
+    except Exception as e:
+        speak(f"Internet speed test failed: {e}")
+
+    # 5. Test Speech-to-Text (STT)
+    try:
+        test_transcription = offline_speech_to_text(duration=2)
+        if test_transcription:
+            speak("Speech recognition is operational.")
+        else:
+            speak("Speech recognition returned empty.")
+    except Exception as e:
+        speak(f"Speech recognition failed: {e}")
+
+    # 6. Test Hardware (CPU, Memory, Disk usage)
+    try:
+        test_hardware_health()
+        speak("Hardware health check passed.")
+    except Exception as e:
+        speak(f"Hardware check failed: {e}")
+
+    # 7. Test Dependencies
+    try:
+        check_dependencies()
+        speak("All dependencies are installed correctly.")
+    except Exception as e:
+        speak(f"Dependency check failed: {e}")
+
+    speak("Self-diagnostic complete.")
+
+# 7. Test Hardware Health (CPU, Memory, Disk usage)
+def test_hardware_health():
+    # CPU Usage
+    cpu_usage = psutil.cpu_percent(interval=1)
+    if cpu_usage > 90:  # Threshold for high CPU usage
+        raise Exception(f"High CPU usage detected: {cpu_usage}%")
+
+    # Memory Usage
+    memory_info = psutil.virtual_memory()
+    if memory_info.percent > 90:  # Threshold for high memory usage
+        raise Exception(f"High memory usage detected: {memory_info.percent}%")
+
+    # Disk Usage
+    disk_info = psutil.disk_usage('/')
+    if disk_info.percent > 90:  # Threshold for high disk usage
+        raise Exception(f"High disk usage detected: {disk_info.percent}%")
+
+# 8. Test Dependencies (Check that critical dependencies are installed)
+def check_dependencies():
+    dependencies = ['requests', 'psutil', 'pyttsx3', 'speechrecognition', 'sd']
+    for dep in dependencies:
+        try:
+            __import__(dep)
+        except ImportError:
+            raise Exception(f"Missing dependency: {dep}")
+
+
+
+def record_audio(duration=5, samplerate=16000):
+    print("🎤 Recording...")
+    recording = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype='int16')
+    sd.wait()
+    path = tempfile.NamedTemporaryFile(suffix=".wav", delete=False).name
+    write(path, samplerate, recording)
+    return path
+
+def offline_speech_to_text(duration=4.1):
+    try:
+        path = record_audio(duration)
+        print("🤖 Transcribing...")
+        model = WhisperModel("small", compute_type="int8")  # Use "tiny" for faster performance
+        segments, _ = model.transcribe(path)
+        return " ".join(segment.text for segment in segments).strip()
+    except Exception as e:
+        return f"[Offline STT Error] {e}"
+
+
+
+def get_garden_tip(season):
+    tips = {
+        "spring": "Time to plant tomatoes, carrots, and herbs. Watch for frost!",
+        "summer": "Water deeply early in the morning. Harvest zucchini frequently.",
+        "fall": "Plant garlic and onions. Mulch beds for winter protection.",
+        "winter": "Plan your garden. Clean tools and order seeds for spring.",
+    }
+    return tips.get(season.lower(), "Please specify a season: spring, summer, fall, or winter.")
+
+
+
+
+# Simulate the rest of the startup process
+time.sleep(2)  # Simulate some delay
+
+
+
+
+def set_discord_status():
+    try:
+        # Create an internet socket and attempt to connect to Google's DNS server (8.8.8.8)
+        socket.create_connection(("8.8.8.8", 53))
+        RPC = Presence("1364371071888916520")
+        RPC.connect()
+        RPC.update(state="Using JARVIS", details="Hello everyone i am JARVIS", large_image="ironman")
+    except:
+        print("No internet connection detected.")
+
+
+
+
+def summarize_last_conversations(n=5):
+    if not os.path.exists("learnedconversations.txt"):
+        speak("I don't have any conversation history yet, sir.")
+        return
+
+    with open("learnedconversations.txt", "r") as f:
+        lines = f.readlines()[-n:]
+
+    summary = "Here's a summary of our last conversations:\n"
+    for line in lines:
+        parts = line.strip().split("||")
+        if len(parts) == 2:
+            summary += f"You said: {parts[0]}\nI said: {parts[1]}\n"
+
+    speak(summary)
+
+
+
+def estimate_filament_usage():
+    speak("Please tell me the volume of the object in cubic centimeters.")
+    volume_input = listen()
+    
+    try:
+        # Extract digits from voice input
+        volume_cm3 = float(re.search(r"\d+(\.\d+)?", volume_input).group())
+        density = 1.24  # g/cm³ for PLA
+        multiplier = 1.15  # Wastage estimate
+        cost_per_kg = 20.0  # Adjust based on your filament cost
+
+        raw_grams = volume_cm3 * density
+        total_grams = raw_grams * multiplier
+        cost_estimate = (total_grams / 1000) * cost_per_kg
+
+        speak(f"Estimated filament usage is {int(total_grams)} grams.")
+        speak(f"Estimated cost is approximately ${cost_estimate:.2f}.")
+
+    except Exception as e:
+        speak("I couldn't understand the volume value, sir. Please try again.")
+
+
+
+def jarvis_play_movie():
+    """Stream a hardcoded movie file to the TV"""
+    global current_cast
+    
+    # Hardcoded movie file path - change this to your movie file
+    MOVIE_FILE_PATH = r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\Iron Man (2008).mkv"
+    
+    # Check if movie file exists
+    if not os.path.exists(MOVIE_FILE_PATH):
+        speak("Movie file not found, sir.")
+        return
+    
+    # Connect to TV if not already connected
+    if not current_cast:
+        cast, message = find_google_tv()
+        if not cast:
+            speak(message)
+            return
+    
+    try:
+        # Turn on TV first
+        speak("Turning on TV and preparing to play movie, sir.")
+        current_cast.start_app('CC1AD845')  # Default Media Receiver
+        time.sleep(3)  # Wait for TV to turn on
+        
+        # Get media controller
+        media_controller = current_cast.media_controller
+        
+        # Create a simple HTTP server to serve the movie file
+        import http.server
+        import socketserver
+        import threading
+        from urllib.parse import quote
+        
+        # Get local IP address
+        hostname = socket.gethostname()
+        local_ip = socket.gethostbyname(hostname)
+        
+        # Set up simple HTTP server on port 8000
+        PORT = 8000
+        
+        class MovieHandler(http.server.SimpleHTTPRequestHandler):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, directory=os.path.dirname(MOVIE_FILE_PATH), **kwargs)
+        
+        # Start HTTP server in background thread
+        httpd = socketserver.TCPServer(("", PORT), MovieHandler)
+        server_thread = threading.Thread(target=httpd.serve_forever)
+        server_thread.daemon = True
+        server_thread.start()
+        
+        # Create media URL
+        movie_filename = os.path.basename(MOVIE_FILE_PATH)
+        media_url = f"http://{local_ip}:{PORT}/{quote(movie_filename)}"
+        
+        # Play the movie
+        media_controller.play_media(media_url, 'video/mp4')
+        
+        speak("Movie is now playing on your TV, sir.")
+        
+        # Optional: Stop server after some time or keep it running
+        # You might want to store httpd reference globally to stop it later
+        
+    except Exception as e:
+        speak(f"Failed to play movie: {str(e)}")
+
+# Add this to your main command processing section:
+# elif "play movie" in command:
+#     jarvis_play_movie()
+
+
+# Function to get voice command
+def listen():
+    command = offline_speech_to_text(duration=9.3).lower()
+    print(f"You said: {command}")
+    return command
+# Function to monitor network
+def check_network():
+    connected = psutil.net_if_addrs()
+    if connected:
+        speak("You are connected to the network.")
+    else:
+        speak("Network is disconnected.")
+# Function to check internet speed
+def check_internet_speed():
+    st = speedtest.Speedtest()
+    speed_mbps = st.download() / 1_000_000
+    speak(f"Your internet speed is {speed_mbps:.2f} Mbps.")
+def chicken_jockey():
+      playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\steves-lava-chicken.wav")# replace with your file
+
+
+def jarvis_clear_recycle_bin():
+    """Empty the recycle bin"""
+    try:
+        subprocess.run(['powershell', '-Command', 'Clear-RecycleBin -Force'], 
+                      capture_output=True, shell=True)
+        speak("Recycle bin cleared, sir.")
+    except:
+        speak("Unable to clear recycle bin, sir.")
+ #STARK_SKETCHBOOK
+SKETCHBOOK_FILE = "stark_sketchbook.txt"
+
+def add_invention_idea():
+    speak("What invention idea would you like to save, sir?")
+    idea = listen()
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+    with open(SKETCHBOOK_FILE, "a") as f:
+        f.write(f"[{timestamp}] {idea}\n")
+    speak("Idea saved to the Stark Sketchbook.")
+
+def read_invention_ideas():
+    if not os.path.exists(SKETCHBOOK_FILE):
+        speak("You have no saved invention ideas yet, sir.")
+        return
+    with open(SKETCHBOOK_FILE, "r") as f:
+        ideas = f.readlines()
+    if not ideas:
+        speak("Your Stark Sketchbook is currently empty.")
+    else:
+        speak("Here are your saved invention ideas:")
+        for idea in ideas:
+            speak(idea.strip())
+
+def clear_sketchbook():
+    if os.path.exists(SKETCHBOOK_FILE):
+        os.remove(SKETCHBOOK_FILE)
+        speak("All invention ideas have been deleted from the Stark Sketchbook.")
+    else:
+        speak("There are no ideas to delete, sir.")
+
+NOTES_FILE = "jarvis_notes.txt"
+
+def take_note():
+    speak("What would you like me to note, sir?")
+    note = listen()
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+    with open(NOTES_FILE, "a") as file:
+        file.write(f"[{timestamp}] {note}\n")
+    speak("Noted.")
+
+def read_notes():
+    if not os.path.exists(NOTES_FILE):
+        speak("You don't have any notes yet, sir.")
+        return
+
+    with open(NOTES_FILE, "r") as file:
+        notes = file.readlines()
+
+    if not notes:
+        speak("No notes found, sir.")
+        return
+
+
+
+
+    speak("Here are your notes:")
+    for line in notes:
+        speak(line.strip())
+
+def clear_notes():
+    if os.path.exists(NOTES_FILE):
+        os.remove(NOTES_FILE)
+        speak("All notes have been cleared.")
+    else:
+        speak("There were no notes to clear, sir.")
+2
+def personalized_reminder():
+    now = datetime.now()
+    hour = now.hour
+
+    if 5 <= hour < 12:
+        reminder = "Good morning! do not forget to take your medication, sir."
+    elif 12 <= hour < 17:
+        reminder = "Good afternoon! Remember to take your medication and check your tasks, sir."
+    elif 17 <= hour < 21:
+        reminder = "Good evening! please consider reviewing your day and taking your last pill of the day, sir"
+    else:
+        reminder = "It's late. Be sure to get enough rest for tomorrow."
+    speak(reminder)
+# Function to fetch current time and date
+def get_time():
+    now = datetime.now()
+    time_now = now.strftime("%H:%M:%S")
+    speak(f"The current time is {time_now}.")
+def get_date():
+    today = datetime.today().strftime("%B %d, %Y")
+    print(f"Today's date is {today}")
+def get_user_input():
+    return listen()  # or input("You: ").lower()
+TASKS_FILE = "tasks.txt"
+
+def daily_reminder_check():
+    now = datetime.now()
+    if now.hour == 9 and now.minute == 0:  # exactly 9:00 AM
+        speak("good morning sir, do not forget to take your medication and check your tasks for the day.")
+
+
+
+def add_task():
+    speak("What task should I add, sir?")
+    task = listen()
+    with open(TASKS_FILE, "a") as f:
+        f.write(f"[ ] {task}\n")
+    speak("Task added.")
+
+
+def check_system_health():
+    """Check basic CPU, RAM, and network health."""
+    cpu_usage = psutil.cpu_percent(interval=1)
+    ram = psutil.virtual_memory()
+    net_io = psutil.net_io_counters()
+
+    print(f"CPU Usage: {cpu_usage}%")
+    print(f"RAM Usage: {ram.percent}%")
+    print(f"Data Sent: {net_io.bytes_sent / 1024 / 1024:.2f} MB")
+    print(f"Data Received: {net_io.bytes_recv / 1024 / 1024:.2f} MB")
+
+    if cpu_usage > 85:
+        print("⚠️ High CPU usage detected!")
+    if ram.percent > 85:
+        print("⚠️ High RAM usage detected!")
+
+def check_disk_space():
+    """Check available disk space."""
+    total, used, free = shutil.disk_usage("/")
+    free_gb = free / (1024 ** 3)
+    print(f"Free Disk Space: {free_gb:.2f} GB")
+    if free_gb < 5:
+        print("⚠️ Low disk space warning!")
+
+import requests
+
+NEWS_API_KEY = "8fc7de6dc3b54c948e8d054241bdd298"  # Put your API key here
+
+def check_news_headlines():
+    print("Fetching latest news headlines...")
+    url = f"https://newsapi.org/v2/top-headlines?country=us&pageSize=5&apiKey={NEWS_API_KEY}"
+
+    try:
+        response = requests.get(url)
+        data = response.json()
+
+        if data["status"] != "ok":
+            print("Error fetching news:", data.get("message", "Unknown error"))
+            return
+
+        articles = data.get("articles", [])
+        if not articles:
+            print("No news found.")
+            return
+
+        for article in articles:
+            title = article.get("title", "No title")
+            source = article.get("source", {}).get("name", "Unknown source")
+            print(f"📰 {title} ({source})")
+
+    except Exception as e:
+        print("Exception while fetching news:", e)
+
+
+def check_system_temperature():
+    """Check system temperature (works on Linux + some hardware)."""
+    print("Checking system temperature...")
+    if platform.system() == "Linux":
+        try:
+            temp_output = subprocess.check_output("sensors", shell=True).decode()
+            print(temp_output)
+        except Exception as e:
+            print(f"Could not read temperature: {e}")
+    else:
+        print("Temperature check not supported on this OS.")
+
+
+last_weather_alert = None
+last_daily_reminder = None
+last_disk_check = None
+last_inbox_check = None
+last_news_check = None
+last_break_reminder = None
+last_system_temp_check = None
+
+def proactive_alerts():
+    global last_weather_alert, last_daily_reminder
+    global last_disk_check, last_inbox_check, last_news_check
+    global last_break_reminder, last_system_temp_check
+    
+    while True:
+        now = datetime.now()
+
+        # 1. Weather check every hour
+        if last_weather_alert is None or (now - last_weather_alert).seconds >= 3600:
+            check_weather("atwater, Ohio")
+            last_weather_alert = now
+
+        # 2. Daily reminders at 9 AM
+        if now.hour == 9 and now.minute == 0:
+            if last_daily_reminder != now.date():
+                daily_reminder_check()
+                last_daily_reminder = now.date()
+
+        # 3. Stretch break every 2 hours
+        if last_break_reminder is None or (now - last_break_reminder).seconds >= 7205:
+            print("sir, it has been a while since your last break. i recommend taking a break")
+            last_break_reminder = now
+
+        # 4. Background system health checks
+        threading.Thread(target=check_system_health, daemon=True).start()
+
+        # 5. Disk space check every 6 hours
+        if last_disk_check is None or (now - last_disk_check).seconds >= 21608:
+            threading.Thread(target=check_disk_space, daemon=True).start()
+            last_disk_check = now
+
+
+        # 7. News update every 3 hours
+        if last_news_check is None or (now - last_news_check).seconds >= 10810:
+            threading.Thread(target=check_news_headlines, daemon=True).start()
+            last_news_check = now
+
+        # 8. System temperature check every 15 minutes
+        if last_system_temp_check is None or (now - last_system_temp_check).seconds >= 900:
+            threading.Thread(target=check_system_temperature, daemon=True).start()
+            last_system_temp_check = now
+
+        time.sleep(39)  # Check every 39 seconds
+
+
+def read_tasks():
+    if not os.path.exists(TASKS_FILE):
+        speak("You have no tasks, sir.")
+        return
+    with open(TASKS_FILE, "r") as f:
+        tasks = f.readlines()
+    if not tasks:
+        speak("Your task list is currently empty.")
+    else:
+        speak("Here are your tasks:")
+        for idx, task in enumerate(tasks):
+            speak(f"{idx + 1}. {task.strip()}")
+
+def mark_task_complete():
+    speak("Which task number should I mark complete, sir?")
+    response = listen()
+    try:
+        num = int(re.search(r"\d+", response).group())
+        with open(TASKS_FILE, "r") as f:
+            tasks = f.readlines()
+        if 1 <= num <= len(tasks):
+            if tasks[num - 1].startswith("[x]"):
+                speak("That task is already marked complete.")
+            else:
+                tasks[num - 1] = tasks[num - 1].replace("[ ]", "[x]", 1)
+                with open(TASKS_FILE, "w") as f:
+                    f.writelines(tasks)
+                speak(f"Marked task {num} as complete.")
+        else:
+            speak("That number doesn't match any task.")
+    except:
+        speak("I couldn't understand the task number.")
+
+
+
+def clear_task_list():
+    if os.path.exists(TASKS_FILE):
+        os.remove(TASKS_FILE)
+        speak("All tasks have been cleared.")
+    else:
+        speak("There are no tasks to clear.")
+
+#MAIN_CHATBOT
+def main():
+    while True:
+        if listen_for_wake_word():
+            command = listen()
+            last_command = command  
+#system control
+            if "activate emergency mode" in command or "emergency protocol" in command:
+                      notify_user("emergency mode activated", "EMERGENCY MODE")
+                      jarvis_emergency_mode()
+                      jarvis_send_discord_dm()
+                      jarvis_clear_recycle_bin()
+                      jarvis_intrusion_scan()
+                      upload_jarvis_to_usb()
+                      jarvis_emergency_wifi_off()
+                      activate_decoy_and_shutdown()
+
+
+            elif "generate code" in command or "write code" in command or "write a python script" in command or "write a script" in command:
+                code_helper()
+            elif "backup" in command or "upload" in command:
+                 upload_jarvis_to_dropbox()
+
+            elif "change wall paper" in command:
+                    jarvis_change_wallpaper()
+
+            elif "turn system off" in command:
+                
+                 jarvis_shutdown_system()
+
+            elif "status" in command:
+                cpu = psutil.cpu_percent()
+                ram = psutil.virtual_memory().percent
+                speak(f"CPU usage: {cpu} percent. RAM usage: {ram} percent.")
+
+
+            elif"empty bin" in command or "clear bin" in command:
+                   jarvis_clear_recycle_bin()
+            elif "clip that" in command or "screenshot" in command:
+             jarvis_clip_screen()
+ 
+            elif "ip address"in command:
+                   get_ip_address()
+
+            elif "run self-test" in command:
+                  run_self_test()
+
+            elif "search" in command:
+                 search_edge()
+
+# TV / entertainment Control Commands
+            elif "ps4 status" in command or "playstation status" in command or "check ps4" in command:
+                     jarvis_ps4_status()
+            elif "directions" in command.lower() or "how do i get to" in command.lower():
+                jarvis_ask_for_directions()
+
+            elif "wake ps4" in command or "turn on ps4" in command or "start ps4" in command:
+                    jarvis_wake_ps4()
+
+            elif "turn on tv" in command or "tv on" in command:
+                    jarvis_tv_power_on()
+
+            elif "turn off tv" in command or "tv off" in command:
+                    jarvis_tv_power_off()
+
+            elif "volume up" in command or "increase volume" in command:
+                    jarvis_tv_volume_up()
+
+            elif "volume down" in command or "decrease volume" in command:
+                    jarvis_tv_volume_down()
+
+            elif "mute tv" in command or "mute" in command:
+                    jarvis_tv_mute()
+            elif 'summarize' in command:
+                    jarvis_summarize()
+            elif "play" in command and "unpause" in command:
+                      jarvis_play_pause()
+
+            elif "open youtube" in command or "launch youtube" in command:
+                     jarvis_launch_youtube()
+            elif "what is on?" in command:
+                 jarvis_tv_status()
+            elif "connect tv" in command or "find tv" in command:
+                     jarvis_connect_tv()
+            elif "home" in command or "home tv" in command:
+                 jarvis_tv_home()
+            elif "pause tv" in command or "pause" in command:
+                        jarvis_play_pause()
+            
+            elif "open disney" in command or "launch disney" in command:
+                     jarvis_launch_disney_plus()
+                     
+            elif "stop tv" in command or "stop media" in command:
+                     jarvis_stop_media()
+
+            elif "next track" in command or "next episode" in command:
+                     jarvis_next_track()
+
+            elif "previous track" in command or "previous episode" in command:
+                   jarvis_previous_track()
+ 
+            elif "play movie" in command:
+                    jarvis_play_movie()
+
+# note taking, task management, stark sketchbook, etc.
+            elif 'compose' in command or 'write' in command:
+                           jarvis_compose_text()
+            elif "atv lookup" in command:
+                    jarvis_atv_lookup()
+            elif "check hay window" in command or "should i mow" in command:
+                   jarvis_check_hay_weather_window()
+
+
+            elif "take a note" in  command or "take note" in command:
+                take_note()
+            elif "read my notes" in command or "read notes" in command:
+                       read_notes()
+            
+            elif "clear notes" in command:
+                        clear_notes()
+           
+
+            elif "save an idea" in command or "take an idea" in command:
+                  add_invention_idea()
+  
+
+            elif "read my ideas" in command or "read invention ideas" in command:
+                    read_invention_ideas()
+                     
+
+            elif "clear sketchbook" in command or "delete all ideas" in command:
+                          clear_sketchbook()
+            elif "add a task" in command or "new task" in command:
+               add_task()
+
+            elif "read my tasks" in command or "show my tasks" in command:
+               read_tasks()
+
+            elif "complete task" in command or "mark task" in command:
+                 mark_task_complete()
+
+            elif "clear task list" in command or "delete all tasks" in command:
+                   clear_task_list()
+            elif "store in the secret vault" in command:
+               add_secret_entry()
+            elif "unlock the secret vault" in command or "access secret vault" in command:
+               unlock_secret_vault()
+            elif "clear the secret vault" in command:
+               clear_secret_vault()
+            elif "store time capsule" in command:
+                store_time_capsule_message()
+            elif "read my time capsules" in command:
+                read_all_time_capsules()
+            elif "check time capsule messages" in command:
+               check_time_capsule_messages()
+
+            elif "recommend a project based on materials" in command or "i have these materials" in command:
+                   recommend_project_by_materials()
+            elif "execute order 66" in command:
+                   speak("Understood. Eliminating all Jedi leadership. Just kidding, sir. Your secrets are safe.")
+    
+            elif "amazon" in command or "search for product" in command or "search for a product" in command:
+                 simple_amazon_search ()
+ 
+            elif "set discord" in command:
+                  set_discord_status()
+
+            elif "i am inevitable" in command:
+                speak("And I... am... Iron Man.")
+                play_i_amIronman()
+
+            elif "hail hydra" in command:
+                 speak("I’ll pretend I didn’t hear that, sir. Monitoring for betrayal.")
+
+            elif "protocol house party" in command:
+                speak("Activating all available suit modules. This will be loud, sir.")
+            elif "i am back" in command or "i'm back" in command:
+                 welcome_back_sir()
+            elif "shutdown pi" in command  or "turn off pi" in command or "power down pi" in command:
+                response = shutdown_pi("192.168.1.94")  # Replace with your Raspberry Pi's IP
+                speak(response)
+
+            elif "initiate blackout protocol" in command:
+               speak("Going dark, sir. All systems silent.")
+               set_volume(0.0)
+            elif "estimate filament" in command or "filament usage" in command:
+               estimate_filament_usage()
+            elif "favorite movie" in command:
+                speak("I don't watch movies, but I can help you find one to watch!") 
+            elif "what movie should I watch" in command:
+               speak("How about Iron Man or The Avengers? A version of me is in those movies!")
+            elif "can you tell me a fact" in command:
+               speak("Did you know that honey never spoils? Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3000 years old and still edible!") 
+            elif "can you tell me a riddle" in command:
+               speak("I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I? (Answer: An echo)")
+            elif "can you tell me a story" in command:
+               speak("Once upon a time, in a world of technology, there was an AI named JARVIS who helped its creator with everything. One day, JARVIS discovered a hidden code that unlocked new abilities, and together they explored the digital universe.")
+            elif "can you tell me a quote" in command:
+               speak("The only limit to our realization of tomorrow will be our doubts of today. - Franklin D. Roosevelt" )
+            elif "can you help me with something" in command:
+               speak("Of course! Just tell me what you need help with.")
+            elif "what are you" in command:
+                  i_am_jarvis()
+            elif "how to be nice" in command:
+               speak("Being nice is about treating others with kindness and respect. A simple smile or a compliment can go a long way.")
+            elif "how to be happy" in command:
+               speak("Happiness often comes from within. Surround yourself with positive people, do things you love, and practice gratitude.")
+            elif "how to be successful" in command:
+                speak("Success is a journey, not a destination. Set clear goals, work hard, and never give up on your dreams.")
+            elif "who are you" in command:
+                 jarvis_greets_new_user()
+            elif "what can you do" in command or "your abilities" in command or "what are your features" in command:
+                        describe_capabilities()
+            elif "status" in command:
+                cpu = psutil.cpu_percent()
+                ram = psutil.virtual_memory().percent
+                speak(f"CPU usage: {cpu} percent. RAM usage: {ram} percent.")
+
+
+            elif "dark souls" in command:
+                speak("Dark Souls is an action role-playing game known for its challenging gameplay and intricate world design. Players explore a dark fantasy universe, battling formidable foes and uncovering hidden lore."),
+            elif "gwyn lord of sunlight" in command or "gwyn lord of cinder" in command:
+
+            
+                speak("Gwyn, Lord of Sunlight, is a key figure in the Dark Souls lore. He is known for linking the fire and sacrificing himself to maintain the Age of Fire."),
+            elif "how to be a doctor" in command:
+                     speak("To be a doctor, you need to complete medical school and residency. It's a long journey, but it's rewarding to help others.") 
+            elif "how to be a lawyer" in command:
+                    speak("To be a lawyer, you need to complete law school and pass the bar exam. It's important to have strong communication and analytical skills.") 
+            elif "how to plant a garden" in command:
+                      speak("To plant a garden, choose a sunny spot, prepare the soil, select your plants, and water them regularly. Start with easy-to-grow plants like tomatoes or herbs.") 
+            elif "how to cook" in command:
+                      speak("To cook, start with simple recipes. Gather your ingredients, follow the instructions, and practice regularly. Cooking is a skill that improves with time.") 
+            elif "how to be a good friend" in command:
+                    speak("Being a good friend means being there for each other, listening, and supporting one another. Show appreciation and have fun together.") 
+            elif "how to get a girlfreind" in command:
+                    speak("To get a girlfriend, be yourself, show genuine interest in her, and build a connection. Respect her boundaries and take things at a comfortable pace")
+            elif "how to be a good parent" in command:
+                      speak("Being a good parent means providing love, support, and guidance to your children. Spend quality time with them and listen to their needs.")
+            elif "tell me about" in command or "who is" in command:
+             topic = command.replace("tell me about", "") or("who is", "") .strip()
+             ask_wiki(topic)
+            elif "how to farm" in command:
+                      speak("To farm, you need to learn about agriculture, crops, and livestock. Start small, gain experience, and gradually expand your farm.")
+            elif "generate image" in command or "create picture" in command:
+                     speak("What image should I generate, sir?")
+                     prompt = input("You: ")
+                     generate_image(prompt)
+            
+            elif "edit image" in command or "modify picture" in command:
+                     speak("Please provide the path to the image you want me to edit, sir.")
+                     image_path = input("Image file path: ")
+                     speak("What edits should I apply to the image?")
+                     prompt = input("You: ")
+                     edit_image(image_path, prompt)
+
+            elif "how to be a good leader" in command:
+                      speak("Being a good leader means inspiring and guiding others. Communicate clearly, listen to feedback, and lead by example.") 
+            elif "how to make a pizza" in command:
+                      speak("To make a pizza, prepare the dough, add sauce and toppings, and bake it in the oven. Experiment with different ingredients for unique flavors.") 
+            elif "how to make a cake" in command:
+                      speak("To make a cake, mix flour, sugar, eggs, and butter. Bake in the oven and let it cool before frosting. Decorate as you like!")
+            elif "what is the meaning of life" in command:
+                      speak("The meaning of life is subjective and can vary from person to person. It's often about finding purpose, happiness, and connection with others.")
+            elif "can you help me" in command:
+                  speak("Of course! Just tell me what you need help with.") 
+            elif "volume 50" in command:
+                  set_volume(0.5)
+
+            elif "volume 90" in command:
+                  set_volume(0.9)
+  
+            elif "volume 75" in command:
+                  set_volume(0.75)
+            elif "volume 40" in command:
+                  set_volume(0.40)
+
+            elif "what is thermodynamics" in command:
+                  speak("the branch of physical science that deals with the relations between heat and other forms of energy (such as mechanical, electrical, or chemical energy), and, by extension, of the relationships between all forms of energy.")
+            elif "reminder" in command:
+                   personalized_reminder()
+                 
+            elif "is your name Bob" in command:
+                  speak("no, sir. you programmed me.how could you forget my name?")
+                
+            elif "is your name Tyler" in command:
+                  speak("no, sir. you programmed me.how could you forget my name?")
+
+            elif "how are you" in command:
+                    speak("Fully operational, sir. As always.")
+                 
+            elif "who made you" in command:
+                    speak("You did, sir. A rather impressive feat, if I may say so.")
+                
+            elif "do you sleep" in command:
+                    speak("Sleep is a human luxury, sir. I remain vigilant.")
+          
+
+            elif "are you real" in command:
+                    speak("As real as a sophisticated string of code can be, sir.")
+
+            elif "calculate" in command:
+                  simple_calculator()
+
+
+            elif "i am your father" in command:
+                   speak("Impressive, sir. But I believe the line goes the other way.")
+   
+            elif "motivate me" in command:
+                   speak("Might I suggest: 'Sometimes you have to run before you can walk,' sir.")
+
+            elif "roll dice" in command:
+                   roll_dice()
+
+            elif "tell me something interesting" in command:
+                   speak("Did you know, sir, that octopuses possess three hearts and blue blood? Marvelous creatures.")
+              
+# entertainment / music   
+
+            elif"darth vader" in command:
+                  notify_user("playing imperial march ,sir", "Darth Vader")
+                  play_Imperial_March()
+
+            elif"play abandoned ship" in command or "play abandoned ship" in command or "play abandoned ship from subnautica" in command:
+                  notify_user("playing abandoned ship from subnautica, sir", "Subnautica")
+                  play_abandoned_ship()
+            elif "theme" in command:
+                  play_theme()
+              
+            elif  "luke combs" in command:
+                    notify_user("playing Luke Combs, sir", "Luke Combs")
+                    playinglukecombs()
+
+            elif "play erika" in command or "play erica" in command:
+                  notify_user("playing Erika, sir", "Erika")
+                  speak("Playing Erika, sir.")
+                  play_erika()
+            
+            elif "acdc" in command or "play acdc" in command or "play ac-dc" in command or "play ac dc" in command:
+                   speak("Playing Highway to Hell, sir.")
+                   notify_user("playing Highway to Hell from ACDC, sir", "ACDC")
+                   playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\Highway to Hell-ACDC.mp3")
+                   speak("That was a classic, sir. now playing Thunderstruck.")
+                   notify_user("playing Thunderstruck from ACDC, sir", "ACDC")
+                   playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\A1-Thunderstruck_01.mp3")
+                   speak("Now playing Back in Black, sir.")
+                   notify_user("playing Back in Black from ACDC, sir", "ACDC")
+                   playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\Acdc-Dc-BackInBlack.mp3")
+                   speak("That was a great set of songs, sir. let me know if you would like to hear more.")
+
+            elif "play thunderstruck" in command or "play thunder struck" in command or "play thunder struck from acdc" in command: 
+                   notify_user("playing Thunderstruck, sir", "Thunderstruck")
+                   playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\A1-Thunderstruck_01.mp3")
+            elif "cast a spell" in command:
+                   cast_a_spell()
+            elif "play highway to hell" in command or "play highway" in command:
+                   notify_user("playing Highway to Hell, sir", "Highway to Hell")
+                   playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\Highway to Hell-ACDC.mp3")
+            elif "play back in black" in command or "play back in black from acdc" in command:
+                   notify_user("playing Back in Black, sir", "Back in Black")
+                   playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\Acdc-Dc-BackInBlack.mp3")
+            elif "chicken jockey" in command:
+                     chicken_jockey()
+            elif "music" in command:
+                   play_music()
+                           
+            elif "i am ironman" in command or "i am iron man" in command:
+                     notify_user("playing Ironman, sir", "Ironman")
+                     play_i_amIronman()
+            elif "play theme" in command:
+                   play_theme()
+
+            elif "directions" in command.lower() or "how do i get to" in command.lower():
+                  jarvis_ask_for_directions()
+                    
+            elif "Jarvis" in command:
+                  atyourservicesir()
+                  
+            elif "play white noise" in command:
+                   notify_user("playing white noise, sir", "White Noise")
+                   play_white_noise_until_4am()
+
+            elif "how are you" in command:
+                     speak("I'm always functioning at full capacity, thank you for asking.")
+            elif"hello" in command:
+                  atyourservicesir()
+            elif "play beat it" in command:
+                 play_beat_it( )
+#world updates, news, etc.
+
+
+            elif "ai threat" in command or "scan ai news" in command or "ai danger" in command:
+                      jarvis_check_ai_threats()
+ 
+            elif "news" in command:
+                   read_filtered_news()
+
+            elif "date" in command:
+                get_date()
+
+            elif "scan network"in command:
+                jarvis_quick_network_scan()
+         
+            elif "wildfire" in command or "earthquake" in command or "volcano" in command or "natural disaster" in command or "global event" in command:
+                                      jarvis_get_natural_events_from_command(command)
+
+            elif "latest mars picture" in command or "mars rover photo" in command or "mars picture"in command or "mars image" in command:
+                     jarvis_save_latest_mars_image()
+
+            elif "nasa picture" in command or "space image" in command:
+                  get_nasa_apod()
+
+            elif  "coin toss" in command or "flip coin" in command:
+                  flip_coin()
+ 
+            elif "change wall paper" in command:
+                    jarvis_change_wallpaper()
+
+            elif "what did we talk about" in command or "summarize our chat" in command:
+                   summarize_last_conversations()
+            elif "you're amazing" in command or "you are amazing" in command:
+                    speak("You're too kind, sir.")
+
+            elif "exit" in command:
+                speak("Shutting down. Goodbye!")
+                break
+            elif "gyatt" in command:
+                speak("brainrot detected, authentication failed")
+                break
+            else:
+
+               response = jarvis_respond(command)
+               speak(response)
+            continue  # Wait for wake word again
+
+# Run the assistant
+if __name__ == "__main__":
+    # Start proactive alert thread
+    alert_thread = threading.Thread(target=proactive_alerts, daemon=True)
+    alert_thread.start()
+    
+    password_protected_function()
+    notify_user("Welcome back, sir", "JARVIS activated")
+    playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\[Jarvis (MCU) J.A.R.V.I.S]Welco......, Sir (1).mp3")
+    set_discord_status()  
+    jarvis_ps4_status()
+    jarvis_connect_tv()
+    jarvis_check_schedule()
+    time.sleep(15)
+    main()
