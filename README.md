@@ -25,4 +25,11 @@ https://www.thingiverse.com/thing:4818311/files
 
 https://ollama.com/download/windows
 
+
 https://makerworld.com/en/models/965971-mk3-full-sized-ironman-helmet?from=search#profileId-1743202
+
+
+
+Other repositories:
+
+https://github.com/TheMechanicB7200/Project_IronMan-2/blob/main/README.md
