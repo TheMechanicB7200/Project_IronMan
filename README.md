@@ -19,8 +19,6 @@ P.S. the  JARVIScore.py is not JARVIS its a decoy, the actual JARVIS is just nam
 
 and we need help with it so could you help donate
 
-Donation link:
-
 
 links for some files :
 
