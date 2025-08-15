@@ -57,7 +57,6 @@ from typing import Optional, Union, List
 import getpass
 import subprocess
 
-
 def password_protected_function():
     # Define the correct password
     correct_password = "KubotaB7200"
@@ -106,8 +105,6 @@ def check_weather(city):
             print(f"🌪️ Warning! It's a {weather_main} in {city}. Stay safe!")
     else:
         print(f"Error: Unable to retrieve weather data for {city}")
-
-
 
 def run_ollama_command(
     command_args: Union[str, List[str]],
@@ -3169,45 +3166,6 @@ def chicken_jockey():
       playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\steves-lava-chicken.wav")# replace with your file
 
 
-PLANT_CARE_DICTIONARY = {
-    "tomatoes": (
-        "Plant tomatoes in full sun with well-drained soil. "
-        "Water regularly at the base, and avoid wetting the leaves. "
-        "Provide support with stakes or cages. Fertilize every 2-3 weeks with balanced fertilizer."
-    ),
-    "raspberry": (
-        "Raspberries prefer full sun and well-drained, slightly acidic soil. "
-        "Prune in late winter and mulch around the base to retain moisture. "
-        "Water consistently during fruiting. Support canes with a trellis."
-    ),
-    "blackberry": (
-        "Blackberries need full sun and fertile, well-drained soil. "
-        "Train canes on a trellis or wire. Prune after fruiting and mulch to suppress weeds. "
-        "Water during dry periods, especially while fruiting."
-    ),
-    "lettuce": (
-        "Lettuce prefers cool weather and partial sun. "
-        "Keep soil consistently moist and harvest leaves as needed. "
-        "Thin seedlings to avoid overcrowding. Watch for slugs and aphids."
-    ),
-    "cucumbers": (
-        "Cucumbers thrive in full sun and warm temperatures. "
-        "Plant in well-drained soil with compost. Water deeply and regularly, especially when flowering. "
-        "Provide trellises for climbing varieties."
-    ),
-    "mint": (
-        "Mint prefers partial shade and moist, rich soil. "
-        "Grow it in containers to prevent spreading. Water frequently and cut back to encourage bushy growth."
-    ),
-}
-
-def lookup_plant_care(plant_name):
-    plant_name = plant_name.lower().strip()
-    return PLANT_CARE_DICTIONARY.get(
-        plant_name,
-        "I'm sorry, sir. I don't have care tips for that plant yet. Try adding it to the plant care dictionary."
-    )
-
 def jarvis_clear_recycle_bin():
     """Empty the recycle bin"""
     try:
@@ -3444,7 +3402,6 @@ def proactive_alerts():
         time.sleep(39)  # Check every 39 seconds
 
 
-
 def read_tasks():
     if not os.path.exists(TASKS_FILE):
         speak("You have no tasks, sir.")
@@ -3650,11 +3607,6 @@ def main():
     
             elif "amazon" in command or "search for product" in command or "search for a product" in command:
                  simple_amazon_search ()
-
-            elif "how do i grow" in command or "plant care" in command or "how to grow" in command:
-                 plant = command.replace("how do i grow", "").replace("plant care", "").replace("how to grow", "").strip()
-                 response = lookup_plant_care(plant)
-                 speak(response)
  
             elif "set discord" in command:
                   set_discord_status()
@@ -3709,8 +3661,14 @@ def main():
                 cpu = psutil.cpu_percent()
                 ram = psutil.virtual_memory().percent
                 speak(f"CPU usage: {cpu} percent. RAM usage: {ram} percent.")
-            elif "how to be a farmer" in command:
-                      speak("To be a farmer, you need to learn about agriculture, crops, and livestock. Start small, gain experience, and gradually expand your farm.")
+
+
+            elif "dark souls" in command:
+                speak("Dark Souls is an action role-playing game known for its challenging gameplay and intricate world design. Players explore a dark fantasy universe, battling formidable foes and uncovering hidden lore."),
+            elif "gwyn lord of sunlight" in command or "gwyn lord of cinder" in command:
+
+            
+                speak("Gwyn, Lord of Sunlight, is a key figure in the Dark Souls lore. He is known for linking the fire and sacrificing himself to maintain the Age of Fire."),
             elif "how to be a doctor" in command:
                      speak("To be a doctor, you need to complete medical school and residency. It's a long journey, but it's rewarding to help others.") 
             elif "how to be a lawyer" in command:
@@ -3734,6 +3692,7 @@ def main():
                      speak("What image should I generate, sir?")
                      prompt = input("You: ")
                      generate_image(prompt)
+            
             elif "edit image" in command or "modify picture" in command:
                      speak("Please provide the path to the image you want me to edit, sir.")
                      image_path = input("Image file path: ")
@@ -3850,8 +3809,6 @@ def main():
                      chicken_jockey()
             elif "music" in command:
                    play_music()
-
-
                            
             elif "i am ironman" in command or "i am iron man" in command:
                      notify_user("playing Ironman, sir", "Ironman")
@@ -3889,9 +3846,6 @@ def main():
 
             elif "scan network"in command:
                 jarvis_quick_network_scan()
-
-
-
          
             elif "wildfire" in command or "earthquake" in command or "volcano" in command or "natural disaster" in command or "global event" in command:
                                       jarvis_get_natural_events_from_command(command)
@@ -3935,7 +3889,6 @@ if __name__ == "__main__":
     notify_user("Welcome back, sir", "JARVIS activated")
     playsound(r"c:\Users\pjtru\OneDrive\Projects\JARVIS MK.1\[Jarvis (MCU) J.A.R.V.I.S]Welco......, Sir (1).mp3")
     set_discord_status()   
-    
     print(jarvis_report_near_earth_asteroids(days=2, api_key="V2RZZrfXqRyHTuJtUT4drszTJ7XtcTIil3Ae9g1g", include_orbital_data=False))
     check_time_capsule_messages()
     jarvis_ps4_status()
